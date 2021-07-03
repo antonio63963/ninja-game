@@ -1,113 +1,151 @@
-// const game = {
-//   start() {
-//     this.ctx = document.getElementById('myCanvas')
-//       .getContext('2d');
-//     console.log(this.ctx);
-//     let bg = new Image();
-//     bg.src = './assets/ninja-stand-still.png';
-//     this.ctx.drawImage(bg, 300, 300)
-//     console.log('game started');
-//   }
-// }
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d");
+const canvasWidth = (canvas.width = 1280);
+const canvasHeight = (canvas.height = 720);
 
-// window.addEventListener('load', () => game.start())
+const ninjaImg = new Image();
+ninjaImg.src = "./assets/ninja_sprite.png";
+const bgImg = new Image();
+bgImg.src = "./assets/bg-start.jpg";
 
-const canvas = document.getElementById('myCanvas');
-const ctx = canvas.getContext('2d');
- canvas.width = 1280;
- canvas.height = 720;
-
-let keys = [];
-let gameFrame = 0;
-const  player = {
-  x: 200, //start coordinates sprite sheet
-  y: 380, 
-  width: 400,//frame width
-  height: 300, //frame height
+const ninja = {
+  x: 200,
+  y: 370,
+  width: 400,
+  height: 300,
   frameX: 0,
   frameY: 0,
-  speed: 5,
-  moving: false,
-  stop: true,
-}
+  amountFrames: 9,
+  gapFrame: 3,
+  infinity: true,
+  keyMouse: null,
+  keyBoard: null,
 
-const ninja = new Image();
-ninja.src = './assets/ninja_sprite.png';
-const bg = new Image();
-bg.src = './assets/bg-start.jpg';
+};
+let gameFrame = 0;
 
-function drawNinja(img, sX, sY, sW, sH, dX, dY, dW, dH) {
-  ctx.drawImage(img, sX, sY, sW, sH, dX, dY, dW, dH)
-}
+const actionArr = [];
+// let eventsKey = new Set();
 
-function animate() { 
-  ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-  drawNinja(ninja, player.frameX * player.width, player.frameY * player.height, player.width, player.height, player.x, player.y, player.width, player.height);
-  movePlayer();
-  changeSpriteFrame();
+function animate() {
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+  ctx.drawImage(bgImg, 0, 0, canvasWidth, canvasHeight);
+  ctx.drawImage(
+    ninjaImg,
+    ninja.frameX * ninja.width,
+    ninja.frameY * ninja.height,
+    ninja.width,
+    ninja.height,
+    ninja.x,
+    ninja.y,
+    ninja.width,
+    ninja.height
+  );
+
+
+
+  actionNinja();
+
+  if(gameFrame % ninja.gapFrame == 0) {
+    if(ninja.infinity) {
+      if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
+      else ninja.frameX = 0;
+// console.log('simple:  ', ninja.infinity, ninja.frameX);
+    }else {
+
+      if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
+      else ninja.frameX = 5;
+      // console.log('protection:  ', ninja.frameX);
+
+    }
+  };
   gameFrame++;
-  requestAnimationFrame(animate)
+  requestAnimationFrame(animate);
 }
+
+
+function actionNinja() {
+  if(actionArr[68]) {
+    ninja.frameY = 1;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 9;
+    ninja.infinity = true;
+  }
+  if(actionArr[65]) {
+    ninja.frameY = 2;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 9;
+    ninja.infinity = true;
+  }
+  if(actionArr[3] && actionArr[68]) {
+    ninja.frameY = 3;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 5;
+    ninja.infinity = false;
+  }
+  if(actionArr[3] && actionArr[65]) {
+    ninja.frameY = 4;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 5;
+    ninja.infinity = false;
+  }
+  if(actionArr[32] && actionArr[68]) {
+    ninja.frameY = 6;
+    ninja.gapFrame = 3;
+    ninja.amountFrames = 5;
+    ninja.infinity = true;
+  }
+};
+
+let isClickFast = true;
+let timer_id = 0;
+function cleanUpTimer(id) {
+  clearTimeout(id);
+  isClickFast = true;
+}
+function showClickSpeed() {
+  console.log('isClickFast: ', isClickFast);
+  if(isClickFast) {console.log('click is fast');}
+  else {console.log('click is slow');}
+}
+
+function keyHandler(e) {
+
+if(!actionArr[e.which]) {
+    timer_id = setTimeout(() => {
+      isClickFast = false;
+      console.log('setTimeout has done');
+    }, 200);
+    actionArr[e.which] = true;
+    ninja.frameX = 0;
+    // console.log('key + mouse ', actionArr[68],'----',actionArr[1]);
+    // console.log('key + key ', actionArr[68],'----',actionArr[65]);
+  }
+}
+
 animate();
 
+window.addEventListener("keydown", keyHandler);
+window.addEventListener("mousedown", keyHandler);
+window.addEventListener('keyup', (e) => {
 
-//===============KEY EVENTS===================
-document.addEventListener('keydown', (event) => {
-  keys[event.keyCode] = true;
-  player.moving = true;
-  console.log(event.keyCode);
-})
-document.addEventListener('keyup', (event) => {
-  delete keys[event.keyCode];
-  player.moving = false;
+  cleanUpTimer(timer_id);
+  delete actionArr[e.which];
+  ninja.frameY = 0;
+  ninja.gapFrame = 3;
+  ninja.infinity = true;
+  ninja.frameX = 0;
+  ninja.amountFrames = 9;
 });
-document.addEventListener('mousedown', (event) => {
-  keys[event.which] = true;
-})
-document.addEventListener('mouseup', (event) => {
-  delete keys[event.which];
-})
 
-function movePlayer() {
-  if(keys[68]) {
-    player.x += player.speed;
-    player.frameY = 1;
-    player.speed = 10;
-    player.moving = true;
-   
-  };
-  if(keys[65]) {
-    player.x -= player.speed;
-    player.frameY = 2;
-    player.speed = 5;
-    player.moving = true;
-  };
-
-  if(keys[65]) {
-    player.x -= player.speed; 
-  }
-  if(keys[32] && player.y > 200) { 
-    console.log(player.y); 
-    player.y -= 50;
-    setTimeout(() => player.y += 50, 200)
-  }
-  if(keys[1]) { 
-    player.frameY = 3;
-  }
- 
-}
-
-function changeSpriteFrame() {
-  if( gameFrame%2 == 0) {
-
-    if(player.frameX < 9 ) {player.frameX++;}
-    else if(!player.moving) {
-      player.frameY = 0;
-      player.moving = true;
-    }
-    else {
-      player.frameX = 0;
-    }
-  }
-}
-
+window.addEventListener('mouseup', (e) => {
+  cleanUpTimer(timer_id);
+  delete actionArr[e.which];
+  ninja.frameY = 0;
+  ninja.gapFrame = 3;
+  ninja.infinity = true;
+  ninja.frameX = 0;
+  ninja.amountFrames = 9;
+  console.log('mouseup:  ', ninja.frameX, ninja.infinity);
+});
