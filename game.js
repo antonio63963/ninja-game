@@ -55,15 +55,17 @@ function animate() {
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(!ninja.infinity && isClickFast) {
+      console.log(ninja.frameX);
       shortPress(32);
     }
     if(ninja.infinity) {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 0;
-    }else {
-      if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
-      else ninja.frameX = 5;
     }
+    // else {
+    //   if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
+    //   else ninja.frameX = 5;
+    // }
   };
 
   gameFrame++;
@@ -98,7 +100,7 @@ function actionNinja() {
   }
   if(actionArr[32] && actionArr[68]) {
     ninja.frameY = 5;
-    ninja.gapFrame = 4;
+    ninja.gapFrame = 5;
     ninja.amountFrames = 9;
     ninja.infinity = false;
     ninja.y = 200;
@@ -160,23 +162,24 @@ function shortPress(eCode) {
     ninja.frameX++;
   }
   else {
-    console.log('full actionArr: ', actionArr);
+    console.log('full actionArr: ', actionArr.length);
     delete actionArr[eCode];
  
     // actionArr.length = 0;
-    // ninja.frameY = 0;
+    ninja.frameY = 0;
     // ninja.gapFrame = 3;
     // ninja.infinity = true;
     ninja.frameX = 0;
     // ninja.amountFrames = 9;
-    console.log('acitionArr: ', actionArr);
+    console.log('acitionArr: ', actionArr.length);
+    return
   }
 }
 
 
 // ----------------------------------------------------------------
-if(!actionArr.length) {
-  ninja.frameX = 0;
-  ninja.frameY = 0;
-}
+// if(!actionArr.length) {
+//   ninja.frameX = 0;
+//   ninja.frameY = 0;
+// }
 
