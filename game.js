@@ -25,7 +25,13 @@ const ninja = {
 let gameFrame = 0;
 
 const actionArr = [];
-// let eventsKey = new Set();
+let isClickFast = false;
+let timer_isFast = 0;
+function cleanUpTimer(id) {
+  clearTimeout(id);
+  showClickSpeed();//test
+  isClickFast = true;
+}
 
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -48,16 +54,13 @@ function animate() {
   actionNinja();
 
   if(gameFrame % ninja.gapFrame == 0) {
-    if(ninja.infinity) {
+    if(!ninja.infinity && isClickFast) shortPress(32, 68)
+    if(ninja.infinity && !isClickFast) {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 0;
-// console.log('simple:  ', ninja.infinity, ninja.frameX);
     }else {
-
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 5;
-      // console.log('protection:  ', ninja.frameX);
-
     }
   };
   gameFrame++;
@@ -91,31 +94,26 @@ function actionNinja() {
     ninja.infinity = false;
   }
   if(actionArr[32] && actionArr[68]) {
-    ninja.frameY = 6;
-    ninja.gapFrame = 3;
-    ninja.amountFrames = 5;
-    ninja.infinity = true;
+    ninja.frameY = 5;
+    ninja.gapFrame = 4;
+    ninja.amountFrames = 9;
+    ninja.infinity = false;
+    ninja.y = 200;
+    setTimeout(() => ninja.y = 370, 200)
   }
 };
 
-let isClickFast = true;
-let timer_id = 0;
-function cleanUpTimer(id) {
-  clearTimeout(id);
-  isClickFast = true;
-}
+
 function showClickSpeed() {
-  console.log('isClickFast: ', isClickFast);
+  // console.log('isClickFast: ', isClickFast);
   if(isClickFast) {console.log('click is fast');}
   else {console.log('click is slow');}
 }
 
 function keyHandler(e) {
-
-if(!actionArr[e.which]) {
-    timer_id = setTimeout(() => {
+  if(!actionArr[e.which]) {
+    timer_isFast = setTimeout(() => {
       isClickFast = false;
-      console.log('setTimeout has done');
     }, 200);
     actionArr[e.which] = true;
     ninja.frameX = 0;
@@ -130,22 +128,47 @@ window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
 
-  cleanUpTimer(timer_id);
-  delete actionArr[e.which];
-  ninja.frameY = 0;
-  ninja.gapFrame = 3;
-  ninja.infinity = true;
-  ninja.frameX = 0;
-  ninja.amountFrames = 9;
+  cleanUpTimer(timer_isFast);
+    if(actionArr[32]) {
+      ninja.frameX = 0;
+      return false;
+    }
+    delete actionArr[e.which];
+    ninja.frameY = 0;
+    ninja.gapFrame = 3;
+    ninja.infinity = true;
+    ninja.frameX = 0;
+    ninja.amountFrames = 9;
 });
 
 window.addEventListener('mouseup', (e) => {
-  cleanUpTimer(timer_id);
-  delete actionArr[e.which];
-  ninja.frameY = 0;
-  ninja.gapFrame = 3;
-  ninja.infinity = true;
-  ninja.frameX = 0;
-  ninja.amountFrames = 9;
-  console.log('mouseup:  ', ninja.frameX, ninja.infinity);
+  cleanUpTimer(timer_isFast);
+    delete actionArr[e.which];
+    ninja.frameY = 0;
+    ninja.gapFrame = 3;
+    ninja.infinity = true;
+    ninja.frameX = 0;
+    ninja.amountFrames = 9;
+  
+  // console.log('mouseup:  ', ninja.frameX, ninja.infinity);
 });
+
+function shortPress(eCode, eCode2) {
+  if(ninja.frameX < ninja.amountFrames) {
+    ninja.frameX++;
+  }
+  else {
+    console.log('full actionArr: ', actionArr);
+    // delete actionArr[eCode];
+    // delete actionArr[eCode2];
+    actionArr.length = 0;
+    ninja.frameY = 0;
+    ninja.gapFrame = 3;
+    ninja.infinity = true;
+    ninja.frameX = 0;
+    ninja.amountFrames = 9;
+    console.log('acitionArr: ', actionArr);
+  }
+}
+
+

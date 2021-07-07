@@ -1,7 +1,30 @@
-реакция на клик
+реакция на клик ninja.typeAnim =
 
-1. Короткий - анимация от начала до конца
+1. Короткий - анимация от начала до конца // once
 
-2. длинный - анимация пока удерживается presses
+2. длинный - анимация пока удерживается presses // always
 
-3. dwn/up 50% animation on dwn event other 50% on Up event
+3. dwn/up 50% animation on dwn event other 50% on Up event // reverse
+
+
+короткие: прыжок-сальто, метание сюрикена, удар мечом
+короткий двойной: прыжок выше 
+длинные: бег, на месте
+dwn/up: блок
+
+как сейчас:
+
+ keyUp затирается индекс с e.which анимация KeyDwn прекращается, анимация по умолчанию infinity: true;
+
+как нужно
+
+1. defind the type of keyAction;
+2. 
+
+['short', 'logn', 'dwnUp'] =>
+if(short) {
+    if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
+    else ninja.frameX = 5;
+}
+
+дописать actions
