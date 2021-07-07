@@ -25,7 +25,7 @@ const ninja = {
 let gameFrame = 0;
 
 const actionArr = [];
-let isClickFast = false;
+let isClickFast = true;
 let timer_isFast = 0;
 function cleanUpTimer(id) {
   clearTimeout(id);
@@ -54,8 +54,10 @@ function animate() {
   actionNinja();
 
   if(gameFrame % ninja.gapFrame == 0) {
-    if(!ninja.infinity && isClickFast) shortPress(32, 68)
-    if(ninja.infinity && !isClickFast) {
+    if(!ninja.infinity && isClickFast) {
+      shortPress(32);
+    }
+    if(ninja.infinity) {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 0;
     }else {
@@ -63,6 +65,7 @@ function animate() {
       else ninja.frameX = 5;
     }
   };
+
   gameFrame++;
   requestAnimationFrame(animate);
 }
@@ -130,7 +133,6 @@ window.addEventListener('keyup', (e) => {
 
   cleanUpTimer(timer_isFast);
     if(actionArr[32]) {
-      ninja.frameX = 0;
       return false;
     }
     delete actionArr[e.which];
@@ -153,22 +155,28 @@ window.addEventListener('mouseup', (e) => {
   // console.log('mouseup:  ', ninja.frameX, ninja.infinity);
 });
 
-function shortPress(eCode, eCode2) {
+function shortPress(eCode) {
   if(ninja.frameX < ninja.amountFrames) {
     ninja.frameX++;
   }
   else {
     console.log('full actionArr: ', actionArr);
-    // delete actionArr[eCode];
-    // delete actionArr[eCode2];
-    actionArr.length = 0;
-    ninja.frameY = 0;
-    ninja.gapFrame = 3;
-    ninja.infinity = true;
+    delete actionArr[eCode];
+ 
+    // actionArr.length = 0;
+    // ninja.frameY = 0;
+    // ninja.gapFrame = 3;
+    // ninja.infinity = true;
     ninja.frameX = 0;
-    ninja.amountFrames = 9;
+    // ninja.amountFrames = 9;
     console.log('acitionArr: ', actionArr);
   }
 }
 
+
+// ----------------------------------------------------------------
+if(!actionArr.length) {
+  ninja.frameX = 0;
+  ninja.frameY = 0;
+}
 
