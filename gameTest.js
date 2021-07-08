@@ -17,10 +17,9 @@ const ninja = {
   frameY: 0,
   amountFrames: 9,
   gapFrame: 3,
-  infinity: true,
-  keyMouse: null,
-  keyBoard: null,
-
+  infinity: true,// is this neccessary?
+  howToRender: 'infinity',//'infinity', 'once', 'onceReverce' 
+  derection: 'left'
 };
 let gameFrame = 0;
 
@@ -54,7 +53,7 @@ function animate() {
   actionNinja();
 
   if(gameFrame % ninja.gapFrame == 0) {
-    if(!ninja.infinity && isClickFast) {
+    if(ninja.howToRender == 'once') {
       console.log(ninja.frameX);
       shortPress(32);
     }
@@ -79,31 +78,47 @@ function actionNinja() {
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
     ninja.infinity = true;
+    ninja.derection = 'left'
   }
   if(actionArr[65]) {
     ninja.frameY = 2;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
     ninja.infinity = true;
-  }
+    ninja.derection = 'right'
+  }//block
   if(actionArr[3] && actionArr[68]) {
     ninja.frameY = 3;
     ninja.gapFrame = 2;
     ninja.amountFrames = 5;
     ninja.infinity = false;
+    ninja.derection = 'left'
   }
   if(actionArr[3] && actionArr[65]) {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
     ninja.amountFrames = 5;
     ninja.infinity = false;
-  }
+    ninja.derection = 'right'
+  }//fly weel
   if(actionArr[32] && actionArr[68]) {
     ninja.frameY = 5;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
     ninja.infinity = false;
     ninja.y = 200;
+    ninja.howToRender = 'once';
+    ninja.derection = 'left'
+    setTimeout(() => ninja.y = 370, 200)
+  }
+  if(actionArr[32] && actionArr[65]) {
+    ninja.frameY = 6;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 9;
+    ninja.infinity = false;
+    ninja.y = 200;
+    ninja.howToRender = 'once';
+    ninja.derection = 'right'
     setTimeout(() => ninja.y = 370, 200)
   }
 };
@@ -160,13 +175,15 @@ window.addEventListener('mouseup', (e) => {
 function shortPress(eCode) {
   if(ninja.frameX < ninja.amountFrames) {
     ninja.frameX++;
+    console.log(ninja.frameX);
   }
   else {
     console.log('full actionArr: ', actionArr.length);
     delete actionArr[eCode];
  
-    // actionArr.length = 0;
+    actionArr.length = 0;
     ninja.frameY = 0;
+    ninja.howToRender = 'infinity',
     // ninja.gapFrame = 3;
     // ninja.infinity = true;
     ninja.frameX = 0;
