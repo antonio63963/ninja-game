@@ -100,7 +100,7 @@ function actionNinja() {
   }
   if(actionArr[32] && actionArr[68]) {
     ninja.frameY = 5;
-    ninja.gapFrame = 5;
+    ninja.gapFrame = 2;
     ninja.amountFrames = 9;
     ninja.infinity = false;
     ninja.y = 200;
