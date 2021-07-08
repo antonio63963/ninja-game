@@ -159,7 +159,7 @@ window.addEventListener('keyup', (e) => {
     delete actionArr[e.which];
     ninja.frameY = ninja.derection == 'left' ? 0 : 1;
     ninja.gapFrame = 3;
-    ninja.infinity = true;
+    ninja.howToRender = 'infinity';
     ninja.frameX = 0;
     ninja.amountFrames = 18;
 });
@@ -185,7 +185,7 @@ function shortPress(eCode) {
     console.log('full actionArr: ', actionArr.length);
     delete actionArr[eCode];
  
-    actionArr.length = 0;
+    // actionArr.length = 0;
     ninja.frameY = 0;
     ninja.howToRender = 'infinity',
     ninja.frameX = 0;
