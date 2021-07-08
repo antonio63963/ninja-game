@@ -4,7 +4,7 @@ const canvasWidth = (canvas.width = 1280);
 const canvasHeight = (canvas.height = 720);
 
 const ninjaImg = new Image();
-ninjaImg.src = "./assets/ninja_sprite.png";
+ninjaImg.src = "./assets/ninja_spriteTest.png";
 const bgImg = new Image();
 bgImg.src = "./assets/bg-start.jpg";
 
@@ -15,7 +15,7 @@ const ninja = {
   height: 300,
   frameX: 0,
   frameY: 0,
-  amountFrames: 9,
+  amountFrames: 19,
   gapFrame: 3,
   infinity: true,// is this neccessary?
   howToRender: 'infinity',//'infinity', 'once', 'onceReverce' 
@@ -74,52 +74,68 @@ function animate() {
 
 function actionNinja() {
   if(actionArr[68]) {
-    ninja.frameY = 1;
+    ninja.frameY = 2;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 9;
+    ninja.amountFrames = 18;
     ninja.infinity = true;
     ninja.derection = 'left'
   }
   if(actionArr[65]) {
-    ninja.frameY = 2;
+    ninja.frameY = 3;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 9;
+    ninja.amountFrames = 18;
     ninja.infinity = true;
     ninja.derection = 'right'
   }//block
   if(actionArr[3] && actionArr[68]) {
-    ninja.frameY = 3;
+    ninja.frameY = 4;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 5;
+    ninja.amountFrames = 5;//????
     ninja.infinity = false;
     ninja.derection = 'left'
   }
   if(actionArr[3] && actionArr[65]) {
-    ninja.frameY = 4;
+    ninja.derection = 'right'
+    ninja.frameY = 5;
     ninja.gapFrame = 2;
     ninja.amountFrames = 5;
     ninja.infinity = false;
-    ninja.derection = 'right'
   }//fly weel
   if(actionArr[32] && actionArr[68]) {
-    ninja.frameY = 5;
-    ninja.gapFrame = 2;
-    ninja.amountFrames = 9;
-    ninja.infinity = false;
-    ninja.y = 200;
     ninja.howToRender = 'once';
     ninja.derection = 'left'
-    setTimeout(() => ninja.y = 370, 200)
-  }
-  if(actionArr[32] && actionArr[65]) {
     ninja.frameY = 6;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
     ninja.infinity = false;
     ninja.y = 200;
+    setTimeout(() => ninja.y = 370, 200)
+  }
+  if(actionArr[32] && actionArr[65]) {
     ninja.howToRender = 'once';
     ninja.derection = 'right'
+    ninja.frameY = 7;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 9;
+    ninja.infinity = false;
+    ninja.y = 200;
     setTimeout(() => ninja.y = 370, 200)
+  }
+  else {
+    if(ninja.derection == 'right') {
+      ninja.frameY = 1;
+      ninja.gapFrame = 3;
+      ninja.infinity = true;
+      ninja.frameX = 0;
+      ninja.amountFrames = 18;
+    }
+    if(ninja.derection == 'left') {
+      ninja.frameY = 0;
+      ninja.gapFrame = 3;
+      ninja.infinity = true;
+      ninja.frameX = 0;
+      ninja.amountFrames = 18;
+    }
   }
 };
 
@@ -157,7 +173,7 @@ window.addEventListener('keyup', (e) => {
     ninja.gapFrame = 3;
     ninja.infinity = true;
     ninja.frameX = 0;
-    ninja.amountFrames = 9;
+    ninja.amountFrames = 18;
 });
 
 window.addEventListener('mouseup', (e) => {
@@ -167,7 +183,7 @@ window.addEventListener('mouseup', (e) => {
     ninja.gapFrame = 3;
     ninja.infinity = true;
     ninja.frameX = 0;
-    ninja.amountFrames = 9;
+    ninja.amountFrames = 18;
   
   // console.log('mouseup:  ', ninja.frameX, ninja.infinity);
 });
@@ -184,10 +200,8 @@ function shortPress(eCode) {
     actionArr.length = 0;
     ninja.frameY = 0;
     ninja.howToRender = 'infinity',
-    // ninja.gapFrame = 3;
-    // ninja.infinity = true;
     ninja.frameX = 0;
-    // ninja.amountFrames = 9;
+
     console.log('acitionArr: ', actionArr.length);
     return
   }
