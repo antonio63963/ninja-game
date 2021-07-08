@@ -17,8 +17,7 @@ const ninja = {
   frameY: 0,
   amountFrames: 19,
   gapFrame: 3,
-  infinity: true,// is this neccessary?
-  howToRender: 'infinity',//'infinity', 'once', 'onceReverce' 
+  howToRender: 'infinity',//'infinity', 'once', 'onceReverce', 'default' 
   derection: 'left'
 };
 let gameFrame = 0;
@@ -54,10 +53,9 @@ function animate() {
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
-      console.log(ninja.frameX);
-      shortPress(32);
+       shortPress(32);
     }
-    if(ninja.infinity) {
+    if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 0;
     }
@@ -84,7 +82,7 @@ function actionNinja() {
     ninja.frameY = 3;
     ninja.gapFrame = 2;
     ninja.amountFrames = 18;
-    ninja.infinity = true;
+    ninja.howToRender = 'infinity';
     ninja.derection = 'right'
   }//block
   if(actionArr[3] && actionArr[68]) {
@@ -121,22 +119,12 @@ function actionNinja() {
     ninja.y = 200;
     setTimeout(() => ninja.y = 370, 200)
   }
-  else {
-    if(ninja.derection == 'right') {
-      ninja.frameY = 1;
-      ninja.gapFrame = 3;
-      ninja.infinity = true;
-      ninja.frameX = 0;
-      ninja.amountFrames = 18;
-    }
-    if(ninja.derection == 'left') {
-      ninja.frameY = 0;
-      ninja.gapFrame = 3;
-      ninja.infinity = true;
-      ninja.frameX = 0;
-      ninja.amountFrames = 18;
-    }
-  }
+  // else {
+  //   if(ninja.derection == 'right') {
+  //     ninja.frameY = 1;
+  //   }
+  // }
+  
 };
 
 
@@ -169,7 +157,7 @@ window.addEventListener('keyup', (e) => {
       return false;
     }
     delete actionArr[e.which];
-    ninja.frameY = 0;
+    ninja.frameY = ninja.derection == 'left' ? 0 : 1;
     ninja.gapFrame = 3;
     ninja.infinity = true;
     ninja.frameX = 0;
@@ -179,7 +167,8 @@ window.addEventListener('keyup', (e) => {
 window.addEventListener('mouseup', (e) => {
   cleanUpTimer(timer_isFast);
     delete actionArr[e.which];
-    ninja.frameY = 0;
+
+    ninja.frameY = 0
     ninja.gapFrame = 3;
     ninja.infinity = true;
     ninja.frameX = 0;
@@ -191,7 +180,6 @@ window.addEventListener('mouseup', (e) => {
 function shortPress(eCode) {
   if(ninja.frameX < ninja.amountFrames) {
     ninja.frameX++;
-    console.log(ninja.frameX);
   }
   else {
     console.log('full actionArr: ', actionArr.length);
