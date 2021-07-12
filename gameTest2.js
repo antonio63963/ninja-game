@@ -18,7 +18,8 @@ const ninja = {
   amountFrames: 19,
   gapFrame: 3,
   howToRender: 'infinity',//'infinity', 'once', 'onceReverce', 'default' 
-  derection: 'left'
+  derection: 'left',
+  stopListenKey: null
 };
 let gameFrame = 0;
 
@@ -135,13 +136,15 @@ function showClickSpeed() {
 }
 
 function keyHandler(e) {
-
+  console.log('dwnKey: ', ninja.stopListenKey);
+  if(ninja.stopListenKey) return;
   if(!actionArr[e.which]) {
     // timer_isFast = setTimeout(() => {
     //   isClickFast = false;
     // }, 200);
     actionArr[e.which] = true;
     ninja.frameX = 0;
+    if(e.which == 32) ninja.stopListenKey = 32;
     // console.log('key + mouse ', actionArr[68],'----',actionArr[1]);
     // console.log('key + key ', actionArr[68],'----',actionArr[65]);
   }
@@ -152,11 +155,11 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
-
-  cleanUpTimer(timer_isFast);
-  if(actionArr[32] && actionArr[68]) {
-      console.log(e);
-      
+console.log('eCodeUp-: ',e.which);
+  // cleanUpTimer(timer_isFast);
+  if(actionArr[32]) {
+      ninja.stopListenKey = false;
+      console.log('dwnUp 32: ', ninja.stopListenKey);
       return false;
     }
     delete actionArr[e.which];
