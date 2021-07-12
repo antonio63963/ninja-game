@@ -136,15 +136,14 @@ function showClickSpeed() {
 }
 
 function keyHandler(e) {
-  console.log('dwnKey: ', ninja.stopListenKey);
-  if(ninja.stopListenKey) return;
+  if(e.which == ninja.stopListenKey) return;
   if(!actionArr[e.which]) {
     // timer_isFast = setTimeout(() => {
     //   isClickFast = false;
     // }, 200);
     actionArr[e.which] = true;
     ninja.frameX = 0;
-    if(e.which == 32) ninja.stopListenKey = 32;
+    if(e.which == 32) ninja.stopListenKey = e.which;
     // console.log('key + mouse ', actionArr[68],'----',actionArr[1]);
     // console.log('key + key ', actionArr[68],'----',actionArr[65]);
   }
@@ -155,11 +154,10 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
-console.log('eCodeUp-: ',e.which);
-  // cleanUpTimer(timer_isFast);
-  if(actionArr[32]) {
-      ninja.stopListenKey = false;
-      console.log('dwnUp 32: ', ninja.stopListenKey);
+
+  if(e.which == 32) {
+      ninja.stopListenKey = null;
+      
       return false;
     }
     delete actionArr[e.which];
@@ -171,7 +169,6 @@ console.log('eCodeUp-: ',e.which);
 });
 
 window.addEventListener('mouseup', (e) => {
-  cleanUpTimer(timer_isFast);
     delete actionArr[e.which];
 
     ninja.frameY = 0
