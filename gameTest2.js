@@ -7,6 +7,8 @@ const ninjaImg = new Image();
 ninjaImg.src = "./assets/ninja_spriteTest.png";
 const bgImg = new Image();
 bgImg.src = "./assets/bg-start.jpg";
+const surikenImg = new Image();
+surikenImg.src = "./assets/suriken.svg"
 
 const ninja = {
   x: 200,
@@ -30,6 +32,12 @@ function cleanUpTimer(id) {
   clearTimeout(id);
   showClickSpeed();//test
   isClickFast = true;
+}
+//suriken
+
+const suriken ={
+  x: ninja.x + 280,
+  y: ninja.y + 190,
 }
 
 function animate() {
@@ -55,6 +63,9 @@ function animate() {
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
        shortPress(32);
+    }
+    if(actionArr[1]) {
+      ctx.drawImage(surikenImg, suriken.x, suriken.y, 20, 20)
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
@@ -100,7 +111,7 @@ function actionNinja() {
     ninja.amountFrames = 5;
     ninja.infinity = false;
   }//fly weel
-  if(actionArr[32] && actionArr[68]) {
+  if(actionArr[32] && actionArr[68] || actionArr[32]) {
     ninja.howToRender = 'once';
     ninja.derection = 'left'
     ninja.frameY = 6;
@@ -120,17 +131,18 @@ function actionNinja() {
     ninja.y = 200;
     setTimeout(() => ninja.y = 370, 200)
   }
-  // else {
-  //   if(ninja.derection == 'right') {
-  //     ninja.frameY = 1;
-  //   }
-  // }
-  
+  if(actionArr[1]) {
+    ninja.howToRender = 'once';
+    ninja.stopListenKey = 1,
+    ninja.frameY = 10;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 19;
+    ninja.infinity = false;
+  }
 };
 
 
 function showClickSpeed() {
-  // console.log('isClickFast: ', isClickFast);
   if(isClickFast) {console.log('click is fast');}
   else {console.log('click is slow');}
 }
@@ -138,14 +150,9 @@ function showClickSpeed() {
 function keyHandler(e) {
   if(e.which == ninja.stopListenKey) return;
   if(!actionArr[e.which]) {
-    // timer_isFast = setTimeout(() => {
-    //   isClickFast = false;
-    // }, 200);
     actionArr[e.which] = true;
     ninja.frameX = 0;
-    if(e.which == 32) ninja.stopListenKey = e.which;
-    // console.log('key + mouse ', actionArr[68],'----',actionArr[1]);
-    // console.log('key + key ', actionArr[68],'----',actionArr[65]);
+    if(e.which == 32 || e.which == 1) ninja.stopListenKey = e.which;
   }
 }
 function cbKeyUp(e) {}
@@ -154,12 +161,15 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
-
-  if(e.which == 32) {
-      ninja.stopListenKey = null;
-      
-      return false;
-    }
+console.log(e.code);
+  if(ninja.stopListenKey == 32) {
+    ninja.stopListenKey = null;
+    if(e.which == 68 || e.which == 65) delete actionArr[e.which];
+    return false;
+  }
+  if( actionArr[32]) {
+    delete actionArr[32];
+  }
     delete actionArr[e.which];
     ninja.frameY = ninja.derection == 'left' ? 0 : 1;
     ninja.gapFrame = 3;
@@ -169,13 +179,19 @@ window.addEventListener('keyup', (e) => {
 });
 
 window.addEventListener('mouseup', (e) => {
+
+  if(ninja.stopListenKey == 1) {
+    ninja.stopListenKey = null;
+    if(e.which == 1) delete actionArr[e.which];
+    return false;
+  }
     delete actionArr[e.which];
 
     ninja.frameY = 0
     ninja.gapFrame = 3;
     ninja.infinity = true;
     ninja.frameX = 0;
-    ninja.amountFrames = 18;
+    ninja.amountFrames = 19;
   
   // console.log('mouseup:  ', ninja.frameX, ninja.infinity);
 });
@@ -186,12 +202,11 @@ function shortPress(eCode) {
   }
   else {
     delete actionArr[eCode];
- 
-    // actionArr.length = 0;
     ninja.frameY = ninja.derection == 'left' ? 0 : 1;
     ninja.howToRender = 'infinity',
+    ninja.amountFrames = 19,
     ninja.frameX = 0;
-    return
+
   }
 }
 
