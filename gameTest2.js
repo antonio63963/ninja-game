@@ -36,8 +36,11 @@ function cleanUpTimer(id) {
 //suriken
 
 const suriken ={
+  isExist: false,
   x: ninja.x + 280,
   y: ninja.y + 190,
+  sizeX: 20,
+  sizeY: 20
 }
 
 function animate() {
@@ -64,19 +67,28 @@ function animate() {
     if(ninja.howToRender == 'once') {
        shortPress(32);
     }
-    if(actionArr[1]) {
-      ctx.drawImage(surikenImg, suriken.x, suriken.y, 20, 20)
-    }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 0;
     }
     // else {
-    //   if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
-    //   else ninja.frameX = 5;
-    // }
-  };
-
+      //   if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
+      //   else ninja.frameX = 5;
+      // }
+    };
+    
+    // suriken
+// console.log(suriken.isExist);
+    if(suriken.isExist) {
+      console.log('isExist ', 'works');
+      ctx.drawImage(surikenImg, suriken.x, suriken.y, suriken.sizeX, suriken.sizeY);
+      suriken.x += 10;
+      if(suriken.x > canvasWidth) {
+        suriken.isExist = false;
+        suriken.x = ninja.x + 280;
+      };
+      console.log('suriken:  ',actionArr[1]);
+    }
   gameFrame++;
   requestAnimationFrame(animate);
 }
@@ -135,7 +147,7 @@ function actionNinja() {
     ninja.howToRender = 'once';
     ninja.stopListenKey = 1,
     ninja.frameY = 10;
-    ninja.gapFrame = 2;
+  
     ninja.amountFrames = 19;
     ninja.infinity = false;
   }
@@ -148,6 +160,7 @@ function showClickSpeed() {
 }
 
 function keyHandler(e) {
+  if(e.which == 1) suriken.isExist = true;
   if(e.which == ninja.stopListenKey) return;
   if(!actionArr[e.which]) {
     actionArr[e.which] = true;
@@ -182,7 +195,7 @@ window.addEventListener('mouseup', (e) => {
 
   if(ninja.stopListenKey == 1) {
     ninja.stopListenKey = null;
-    if(e.which == 1) delete actionArr[e.which];
+    delete actionArr[1];
     return false;
   }
     delete actionArr[e.which];
