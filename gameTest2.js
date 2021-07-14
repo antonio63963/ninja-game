@@ -8,7 +8,7 @@ ninjaImg.src = "./assets/ninja_spriteTest.png";
 const bgImg = new Image();
 bgImg.src = "./assets/bg-start.jpg";
 const surikenImg = new Image();
-surikenImg.src = "./assets/suriken.svg"
+surikenImg.src = "./assets/suriken.svg";
 
 const ninja = {
   x: 200,
@@ -34,13 +34,25 @@ function cleanUpTimer(id) {
   isClickFast = true;
 }
 //suriken
-
-const suriken ={
-  isExist: false,
-  x: ninja.x + 280,
-  y: ninja.y + 190,
-  sizeX: 20,
-  sizeY: 20
+const surikenArr = [];
+function SurikenInstance() {
+  this.isExist = true,
+  this.x = ninja.x + 280,
+  this.y = ninja.y + 190,
+  this.sizeX = 20,
+  this.sizeY = 20,
+  this.foo = function(){
+    ctx.drawImage(surikenImg, this.x, this.y, this.sizeX, this.sizeY);
+      this.x += 10;
+      if(this.x > canvasWidth) {
+        this.isExist = false;
+        this.x = ninja.x + 280;
+      }
+  }
+};
+function addNewSuriken() {
+  const newSuriken = new SurikenInstance();
+  surikenArr.push(newSuriken);
 }
 
 function animate() {
@@ -65,29 +77,25 @@ function animate() {
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
-       shortPress(32);
+      shortPress(32);
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 0;
     }
-    // else {
-      //   if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
-      //   else ninja.frameX = 5;
-      // }
-    };
+    if(ninja.howToRender == 'onceReverce') {
+        if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
+        else ninja.frameX = 5;
+      }
+    }
     
     // suriken
-// console.log(suriken.isExist);
-    if(suriken.isExist) {
-      console.log('isExist ', 'works');
-      ctx.drawImage(surikenImg, suriken.x, suriken.y, suriken.sizeX, suriken.sizeY);
-      suriken.x += 10;
-      if(suriken.x > canvasWidth) {
-        suriken.isExist = false;
-        suriken.x = ninja.x + 280;
-      };
-      console.log('suriken:  ',actionArr[1]);
+    if(surikenArr.length) {
+      surikenArr.forEach((sur, ind) => {
+        if(sur.isExist) {
+          sur.foo();
+        } else {surikenArr.splice(ind, 1);}
+      });
     }
   gameFrame++;
   requestAnimationFrame(animate);
@@ -109,10 +117,10 @@ function actionNinja() {
     ninja.howToRender = 'infinity';
     ninja.derection = 'right'
   }//block
-  if(actionArr[3] && actionArr[68]) {
+  if(actionArr[3] && actionArr[68] || actionArr[3] && ninja.derection == 'left') {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 5;//????
+    ninja.amountFrames = 19;//????
     ninja.infinity = false;
     ninja.derection = 'left'
   }
@@ -123,7 +131,7 @@ function actionNinja() {
     ninja.amountFrames = 5;
     ninja.infinity = false;
   }//fly weel
-  if(actionArr[32] && actionArr[68] || actionArr[32]) {
+  if(actionArr[32] && actionArr[68] || actionArr[32] && ninja.derection == 'left') {
     ninja.howToRender = 'once';
     ninja.derection = 'left'
     ninja.frameY = 6;
@@ -148,33 +156,28 @@ function actionNinja() {
     ninja.stopListenKey = 1,
     ninja.frameY = 10;
   
-    ninja.amountFrames = 19;
+    ninja.amountFrames = 5;
     ninja.infinity = false;
   }
 };
 
 
-function showClickSpeed() {
-  if(isClickFast) {console.log('click is fast');}
-  else {console.log('click is slow');}
-}
-
 function keyHandler(e) {
-  if(e.which == 1) suriken.isExist = true;
+  console.log(e.which);
   if(e.which == ninja.stopListenKey) return;
   if(!actionArr[e.which]) {
     actionArr[e.which] = true;
     ninja.frameX = 0;
     if(e.which == 32 || e.which == 1) ninja.stopListenKey = e.which;
+    if(e.which == 1) addNewSuriken();
   }
 }
-function cbKeyUp(e) {}
+
 animate();
 
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
-console.log(e.code);
   if(ninja.stopListenKey == 32) {
     ninja.stopListenKey = null;
     if(e.which == 68 || e.which == 65) delete actionArr[e.which];
@@ -192,21 +195,22 @@ console.log(e.code);
 });
 
 window.addEventListener('mouseup', (e) => {
-
+  if(ninja.stopListenKey == 3) {
+    ninja.stopListenKey = null;
+    console.log('3 is up');
+    return;
+  }
   if(ninja.stopListenKey == 1) {
     ninja.stopListenKey = null;
     delete actionArr[1];
     return false;
   }
     delete actionArr[e.which];
-
     ninja.frameY = 0
     ninja.gapFrame = 3;
     ninja.infinity = true;
     ninja.frameX = 0;
     ninja.amountFrames = 19;
-  
-  // console.log('mouseup:  ', ninja.frameX, ninja.infinity);
 });
 
 function shortPress(eCode) {
@@ -222,11 +226,3 @@ function shortPress(eCode) {
 
   }
 }
-
-
-// ----------------------------------------------------------------
-// if(!actionArr.length) {
-//   ninja.frameX = 0;
-//   ninja.frameY = 0;
-// }
-
