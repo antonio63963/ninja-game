@@ -85,8 +85,6 @@ function animate() {
     }
     if(ninja.howToRender == 'stopAnimation') {
       let framesToRender = Math.floor(ninja.amountFrames / 2);
-      console.log('amountFrames: ', ninja.amountFrames);
-      console.log('88 : ', ninja.howToRender);
       if(ninja.frameX < framesToRender) ninja.frameX++;
       else ninja.frameX = framesToRender;
     }
@@ -95,7 +93,6 @@ function animate() {
         ninja.frameX++;
       }
       else {
-        console.log('check out the else');
         delete actionArr[ninja.stopListenKey];
         ninja.frameY = ninja.derection == 'left' ? 0 : 1;
         ninja.stopListenKey = null;
@@ -103,7 +100,6 @@ function animate() {
         ninja.amountFrames = 19;
         ninja.frameX = 0;
       }
-      console.log(ninja.stopListenKey, ninja.howToRender, actionArr);
     }
   }
     
@@ -138,15 +134,13 @@ function actionNinja() {
   if(actionArr[3] && actionArr[68] || actionArr[3] && ninja.derection == 'left') {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 19;//????
+    ninja.amountFrames = 19;
     
   }
-  if(actionArr[3] && actionArr[65]) {
-    ninja.derection = 'right'
+  if(actionArr[3] && actionArr[65] || actionArr[3] && ninja.derection == 'right') {
     ninja.frameY = 5;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 5;
-    ninja.infinity = false;
+    ninja.amountFrames = 19;
   }//fly weel
   if(actionArr[32] && actionArr[68] || actionArr[32] && ninja.derection == 'left') {
     ninja.howToRender = 'once';
@@ -217,8 +211,6 @@ window.addEventListener('mouseup', (e) => {
   
   if(ninja.stopListenKey == 3) {
     ninja.howToRender = 'reverseAnimation';
-    console.log('3 is up');
-    console.log(ninja.howToRender);
     return;
   }
   if(ninja.stopListenKey == 1) {
