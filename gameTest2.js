@@ -37,7 +37,7 @@ function cleanUpTimer(id) {
 const surikenArr = [];
 function SurikenInstance() {
   this.isExist = true;
-  this.x = ninja.x + 280,
+  this.x = ninja.derection == 'left' ? ninja.x + 280 : ninja.x + 100,
   this.y = ninja.y + 190,
   this.sizeX = 20,
   this.sizeY = 20,
@@ -165,11 +165,11 @@ function actionNinja() {
   if(actionArr[1]) {
     ninja.howToRender = 'once';
     ninja.stopListenKey = 1,
-    ninja.frameY = 10;
-  
+    ninja.frameY = ninja.derection == 'right' ? 11 : 10;
     ninja.amountFrames = 5;
     ninja.infinity = false;
   }
+ 
 };
 
 
