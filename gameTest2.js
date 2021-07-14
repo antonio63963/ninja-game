@@ -36,18 +36,30 @@ function cleanUpTimer(id) {
 //suriken
 const surikenArr = [];
 function SurikenInstance() {
+  this.derection = ninja.derection;
   this.isExist = true;
-  this.x = ninja.derection == 'left' ? ninja.x + 280 : ninja.x + 100,
+  this.x = this.derection == 'left' ? ninja.x + 280 : ninja.x + 100,
   this.y = ninja.y + 190,
   this.sizeX = 20,
   this.sizeY = 20,
   this.surikenLaunch = function(){
+    if(this.derection == 'left') {
     ctx.drawImage(surikenImg, this.x, this.y, this.sizeX, this.sizeY);
       this.x += 10;
       if(this.x > canvasWidth) {
         this.isExist = false;
         this.x = ninja.x + 280;
       }
+    }
+    if(this.derection == 'right') {
+      ctx.drawImage(surikenImg, this.x, this.y, this.sizeX, this.sizeY);
+      this.x -= 10;
+      if(this.x < 0) {
+        this.isExist = false;
+        this.x = ninja.x + 280;
+      }
+    }
+    
   }
 };
 function addNewSuriken() {
@@ -110,6 +122,7 @@ function animate() {
           sur.surikenLaunch();
         } else {surikenArr.splice(ind, 1);}
       });
+      console.log('suriken: ', surikenArr);
     }
   gameFrame++;
   requestAnimationFrame(animate);
