@@ -19,7 +19,7 @@ const ninja = {
   frameY: 0,
   amountFrames: 19,
   gapFrame: 3,
-  howToRender: 'infinity',//'infinity', 'once', 'onceReverce', 'default' 
+  howToRender: 'infinity',//'infinity', 'once', 'stopAnimation', 'reverseAnimation' 
   derection: 'left',
   stopListenKey: null
 };
@@ -36,12 +36,12 @@ function cleanUpTimer(id) {
 //suriken
 const surikenArr = [];
 function SurikenInstance() {
-  this.isExist = true,
+  this.isExist = true;
   this.x = ninja.x + 280,
   this.y = ninja.y + 190,
   this.sizeX = 20,
   this.sizeY = 20,
-  this.foo = function(){
+  this.surikenLaunch = function(){
     ctx.drawImage(surikenImg, this.x, this.y, this.sizeX, this.sizeY);
       this.x += 10;
       if(this.x > canvasWidth) {
@@ -83,17 +83,35 @@ function animate() {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
       else ninja.frameX = 0;
     }
-    if(ninja.howToRender == 'onceReverce') {
-        if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
-        else ninja.frameX = 5;
-      }
+    if(ninja.howToRender == 'stopAnimation') {
+      let framesToRender = Math.floor(ninja.amountFrames / 2);
+      console.log('amountFrames: ', ninja.amountFrames);
+      console.log('88 : ', ninja.howToRender);
+      if(ninja.frameX < framesToRender) ninja.frameX++;
+      else ninja.frameX = framesToRender;
     }
+    if(ninja.howToRender == 'reverseAnimation') {
+      if(ninja.frameX < ninja.amountFrames) {
+        ninja.frameX++;
+      }
+      else {
+        console.log('check out the else');
+        delete actionArr[ninja.stopListenKey];
+        ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+        ninja.stopListenKey = null;
+        ninja.howToRender = 'infinity';
+        ninja.amountFrames = 19;
+        ninja.frameX = 0;
+      }
+      console.log(ninja.stopListenKey, ninja.howToRender, actionArr);
+    }
+  }
     
     // suriken
     if(surikenArr.length) {
       surikenArr.forEach((sur, ind) => {
         if(sur.isExist) {
-          sur.foo();
+          sur.surikenLaunch();
         } else {surikenArr.splice(ind, 1);}
       });
     }
@@ -121,8 +139,7 @@ function actionNinja() {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
     ninja.amountFrames = 19;//????
-    ninja.infinity = false;
-    ninja.derection = 'left'
+    
   }
   if(actionArr[3] && actionArr[65]) {
     ninja.derection = 'right'
@@ -163,13 +180,14 @@ function actionNinja() {
 
 
 function keyHandler(e) {
-  console.log(e.which);
+  
   if(e.which == ninja.stopListenKey) return;
   if(!actionArr[e.which]) {
     actionArr[e.which] = true;
     ninja.frameX = 0;
-    if(e.which == 32 || e.which == 1) ninja.stopListenKey = e.which;
+    if(e.which == 32 || e.which == 1 || e.which == 3) ninja.stopListenKey = e.which;
     if(e.which == 1) addNewSuriken();
+    if(e.which == 3) ninja.howToRender = 'stopAnimation';
   }
 }
 
@@ -178,6 +196,7 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
+ 
   if(ninja.stopListenKey == 32) {
     ninja.stopListenKey = null;
     if(e.which == 68 || e.which == 65) delete actionArr[e.which];
@@ -195,9 +214,11 @@ window.addEventListener('keyup', (e) => {
 });
 
 window.addEventListener('mouseup', (e) => {
+  
   if(ninja.stopListenKey == 3) {
-    ninja.stopListenKey = null;
+    ninja.howToRender = 'reverseAnimation';
     console.log('3 is up');
+    console.log(ninja.howToRender);
     return;
   }
   if(ninja.stopListenKey == 1) {
