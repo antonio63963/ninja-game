@@ -21,11 +21,11 @@ const ninja = {
   gapFrame: 3,
   howToRender: 'infinity',//'infinity', 'once', 'stopAnimation', 'reverseAnimation' 
   derection: 'left',
-  stopListenKey: null
+  stopListenKey: null  // this prop i use for shot press key and rverse animation
 };
 let gameFrame = 0;
 
-const actionArr = [];
+const eventArr = [];
 let isClickFast = true;
 let timer_isFast = 0;
 function cleanUpTimer(id) {
@@ -66,7 +66,15 @@ function addNewSuriken() {
   const newSuriken = new SurikenInstance();
   surikenArr.push(newSuriken);
 }
-
+function defaultAction(indexDelete, ) {
+  delete eventArr[indexDelete];
+  ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+  ninja.stopListenKey = null;
+  ninja.howToRender = 'infinity';
+  ninja.gapFrame = 3;
+  ninja.amountFrames = 19;
+  ninja.frameX = 0;
+}
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -83,11 +91,11 @@ function animate() {
     ninja.height
   );
 
-  actionNinja();
+  controllEventArr();
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
-      shortPress(32);
+      onceRender(32);
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
@@ -103,13 +111,7 @@ function animate() {
         ninja.frameX++;
       }
       else {
-        delete actionArr[ninja.stopListenKey];
-        ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-        ninja.stopListenKey = null;
-        ninja.howToRender = 'infinity';
-        ninja.gapFrame = 3;
-        ninja.amountFrames = 19;
-        ninja.frameX = 0;
+        defaultAction(ninja.stopListenKey)
       }
     }
   }
@@ -126,75 +128,70 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-
-function actionNinja() {
-  if(actionArr[68]) {
+//this function are watching for eventArr changes
+function controllEventArr() {
+  if(eventArr[68]) {
     ninja.frameY = 2;
     ninja.gapFrame = 2;
     ninja.amountFrames = 18;
-    ninja.infinity = true;
     ninja.derection = 'left'
   }
-  if(actionArr[65]) {
+  if(eventArr[65]) {
     ninja.frameY = 3;
     ninja.gapFrame = 2;
     ninja.amountFrames = 18;
-    ninja.howToRender = 'infinity';
     ninja.derection = 'right'
   }//block
-  if(actionArr[3] && ninja.derection == 'left') {
+  if(eventArr[3] && ninja.derection == 'left') {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
     ninja.amountFrames = 19;
     
   }
-  if(actionArr[3] && ninja.derection == 'right') {
+  if(eventArr[3] && ninja.derection == 'right') {
     ninja.frameY = 5;
     ninja.gapFrame = 2;
     ninja.amountFrames = 19;
+    console.log(ninja.howToRender);
   }//fly weel
-  if(actionArr[32] && actionArr[68] || actionArr[32] && ninja.derection == 'left') {
-    ninja.howToRender = 'once';
-    ninja.derection = 'left'
+  if(eventArr[32] && eventArr[68] || eventArr[32] && ninja.derection == 'left') {
     ninja.frameY = 6;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
-    ninja.infinity = false;
     ninja.y = 200;
     setTimeout(() => ninja.y = 370, 200)
   }
-  if(actionArr[32] && actionArr[65]) {
-    ninja.howToRender = 'once';
-    ninja.derection = 'right'
+  if(eventArr[32] && eventArr[65] || eventArr[32] && ninja.derection == 'right') {
     ninja.frameY = 7;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
-    ninja.infinity = false;
     ninja.y = 200;
     setTimeout(() => ninja.y = 370, 200)
   }
   // suriken
-  if(actionArr[1]) {
-    ninja.howToRender = 'once';
+  if(eventArr[1]) {
     ninja.stopListenKey = 1,
     ninja.frameY = ninja.derection == 'right' ? 11 : 10;
     ninja.amountFrames = 5;
     ninja.infinity = false;
   }
- 
 };
 
 
 function keyHandler(e) {
-  
-  if(e.which == ninja.stopListenKey) return;
-  if(!actionArr[e.which]) {
-    actionArr[e.which] = true;
+  if(e.which == ninja.stopListenKey) return false;
+  if(!eventArr[e.which]) {
+    eventArr[e.which] = true;
     ninja.frameX = 0;
-    // if(e.which == 32 || e.which == 1 || e.which == 3) ninja.stopListenKey = e.which;
-    ninja.stopListenKey = e.which;
+    if(e.which == 32 || e.which == 1) {
+      ninja.stopListenKey = e.which;
+      ninja.howToRender = 'once';
+    }  
+    if(e.which == 3) {
+      ninja.stopListenKey = e.which
+      ninja.howToRender = 'stopAnimation';
+    }
     if(e.which == 1) addNewSuriken();
-    if(e.which == 3) ninja.howToRender = 'stopAnimation';
   }
 }
 
@@ -203,57 +200,47 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
+  //simultaneous unpress keys
   if(ninja.stopListenKey == 3) {
-    ninja.howToRender = 'reverseAnimation';
     if( e.which == 68 || e.which == 65)
-    delete  actionArr[e.which];
-    return;
+    ninja.howToRender = 'reverseAnimation';
+    delete  eventArr[e.which];
+    return false;
   }
   if(ninja.stopListenKey == 32) {
     ninja.stopListenKey = null;
-    if(e.which == 68 || e.which == 65) delete actionArr[e.which];
+    if(e.which == 68 || e.which == 65) delete eventArr[e.which];
     return false;
   }
-  if( actionArr[32]) {
-    delete actionArr[32];
-  }
-    delete actionArr[e.which];
-    ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-    ninja.gapFrame = 3;
-    ninja.howToRender = 'infinity';
-    ninja.frameX = 0;
-    ninja.amountFrames = 18;
-    ninja.stopListenKey = null;
+
+  defaultAction(e.which);
 });
 
 window.addEventListener('mouseup', (e) => {
   
   if(ninja.stopListenKey == 3 ) {
     ninja.howToRender = 'reverseAnimation';
-    return;
+    return false;
   }
 
   if(ninja.stopListenKey == 1) {
     ninja.stopListenKey = null;
-    delete actionArr[1];
+    delete eventArr[1];
     return false;
   }
-    delete actionArr[e.which];
-    ninja.frameY = 0
-    ninja.gapFrame = 3;
-    ninja.frameX = 0;
-    ninja.amountFrames = 19;
+  defaultAction(e.which);
 });
 
-function shortPress(eCode) {
+function onceRender(eCode) {
   if(ninja.frameX < ninja.amountFrames) {
     ninja.frameX++;
   }
   else {
-    delete actionArr[eCode];
+    delete eventArr[eCode];
     ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-    ninja.howToRender = 'infinity',
-    ninja.amountFrames = 19,
+    ninja.howToRender = 'infinity';
+    ninja.gapFrame = 3;
+    ninja.amountFrames = 19;
     ninja.frameX = 0;
   }
 }
