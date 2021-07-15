@@ -26,13 +26,7 @@ const ninja = {
 let gameFrame = 0;
 
 const eventArr = [];
-let isClickFast = true;
-let timer_isFast = 0;
-function cleanUpTimer(id) {
-  clearTimeout(id);
-  showClickSpeed();//test
-  isClickFast = true;
-}
+
 //suriken
 const surikenArr = [];
 function SurikenInstance() {
@@ -95,7 +89,18 @@ function animate() {
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
-      onceRender(32);
+      if(ninja.frameX < ninja.amountFrames) {
+        ninja.frameX++;
+      }
+      else {
+        console.log(ninja.stopListenKey);
+        delete eventArr[70];
+        ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+        ninja.howToRender = 'infinity';
+        ninja.gapFrame = 3;
+        ninja.amountFrames = 19;
+        ninja.frameX = 0;
+      };
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
@@ -115,15 +120,14 @@ function animate() {
       }
     }
   }
-    
     // suriken
-    if(surikenArr.length) {
-      surikenArr.forEach((sur, ind) => {
-        if(sur.isExist) {
-          sur.surikenLaunch();
-        } else {surikenArr.splice(ind, 1);}
-      });
-    }
+  if(surikenArr.length) {
+    surikenArr.forEach((sur, ind) => {
+      if(sur.isExist) {
+        sur.surikenLaunch();
+      } else {surikenArr.splice(ind, 1);}
+    });
+  }
   gameFrame++;
   requestAnimationFrame(animate);
 }
@@ -173,17 +177,23 @@ function controllEventArr() {
     ninja.stopListenKey = 1,
     ninja.frameY = ninja.derection == 'right' ? 11 : 10;
     ninja.amountFrames = 5;
-    ninja.infinity = false;
+  }
+  //sward
+  if(eventArr[70]) {
+    ninja.frameY = 8;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 16;
   }
 };
 
 
 function keyHandler(e) {
+  // console.log(e.which);
   if(e.which == ninja.stopListenKey) return false;
   if(!eventArr[e.which]) {
     eventArr[e.which] = true;
     ninja.frameX = 0;
-    if(e.which == 32 || e.which == 1) {
+    if(e.which == 32 || e.which == 1 || e.which == 70) {
       ninja.stopListenKey = e.which;
       ninja.howToRender = 'once';
     }  
@@ -207,13 +217,13 @@ window.addEventListener('keyup', (e) => {
     delete  eventArr[e.which];
     return false;
   }
-  if(ninja.stopListenKey == 32) {
+  if(ninja.stopListenKey == 32 || 70) {
     ninja.stopListenKey = null;
     if(e.which == 68 || e.which == 65) delete eventArr[e.which];
     return false;
   }
 
-  defaultAction(e.which);
+  // defaultAction(e.which);
 });
 
 window.addEventListener('mouseup', (e) => {
@@ -232,6 +242,7 @@ window.addEventListener('mouseup', (e) => {
 });
 
 function onceRender(eCode) {
+  console.log(eCode);
   if(ninja.frameX < ninja.amountFrames) {
     ninja.frameX++;
   }
