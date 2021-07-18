@@ -28,11 +28,7 @@ let gameFrame = 0;
 const eventArr = [];
 let isClickFast = true;
 let timer_isFast = 0;
-function cleanUpTimer(id) {
-  clearTimeout(id);
-  showClickSpeed();//test
-  isClickFast = true;
-}
+
 //suriken
 const surikenArr = [];
 function SurikenInstance() {
@@ -157,6 +153,7 @@ function controlEventArr() {
     ninja.amountFrames = 19;
   }//fly weel
   if(eventArr[32] && eventArr[68] || eventArr[32] && ninja.derection == 'left') {
+    ninja.howToRender = 'once';
     ninja.frameY = 6;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
@@ -209,35 +206,25 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
+console.log(e.which);
 
-  console.log("up: ",deleteIndex);
-  console.log("stop: ",ninja.stopListenKey);
   if(ninja.stopListenKey == 3) {
     ninja.howToRender = 'reverseAnimation';
     if( e.which == 68 || e.which == 65)
     delete  eventArr[e.which];
     return;
   }
-  // console.log('stoplistenkey: ' ,ninja.stopListenKey);
-  console.log('32: ' ,ninja.stopListenKey);
-  console.log(e.which);
+
   if(ninja.stopListenKey == 32 || ninja.stopListenKey == 70 && ninja.howToRender == 'once') {
     deleteIndex = ninja.stopListenKey;
     ninja.stopListenKey = null;
     if(e.which == 68 || e.which == 65) delete eventArr[e.which];
     return false;
   }
-
   // if(deleteIndex == 70) return false;
   if(deleteIndex == 70) nin
- 
-  delete eventArr[e.which];
-  ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-  ninja.gapFrame = 3;
-  ninja.howToRender = 'infinity';
-  ninja.frameX = 0;
-  ninja.amountFrames = 18;
-  ninja.stopListenKey = null;
+
+  defaultAnimation(e.which)
 });
 
 window.addEventListener('mouseup', (e) => {
@@ -252,11 +239,7 @@ window.addEventListener('mouseup', (e) => {
     delete eventArr[1];
     return false;
   }
-    delete eventArr[e.which];
-    ninja.frameY = 0
-    ninja.gapFrame = 3;
-    ninja.frameX = 0;
-    ninja.amountFrames = 19;
+  defaultAnimation(e.which);
 });
 
 function onceAnimation(eCode) {
@@ -264,14 +247,14 @@ function onceAnimation(eCode) {
     ninja.frameX++;
   }
   else {
-    delete eventArr[eCode];
-    ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-    ninja.amountFrames = 19,
-    ninja.frameX = 0;
-    ninja.gapFrame = 3;
-    console.log(deleteIndex, '======', eventArr[eCode]);
+    defaultAnimation(eCode)
     deleteIndex = null;
-    ninja.howToRender = 'infinity',
-    console.log('once end: ', deleteIndex);
   }
+}
+function defaultAnimation(eCode) {
+  delete eventArr[eCode];
+  ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+  ninja.amountFrames = 19;                                 
+  ninja.frameX = 0;
+  ninja.gapFrame = 3;
 }
