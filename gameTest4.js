@@ -21,12 +21,18 @@ const ninja = {
   gapFrame: 3,
   howToRender: 'infinity',//'infinity', 'once', 'stopAnimation', 'reverseAnimation' 
   derection: 'left',
-  stopListenKey: null  // this prop i use for shot press key and rverse animation
+  stopListenKey: null
 };
 let gameFrame = 0;
 
-const eventArr = [];
-
+const actionArr = [];
+let isClickFast = true;
+let timer_isFast = 0;
+function cleanUpTimer(id) {
+  clearTimeout(id);
+  showClickSpeed();//test
+  isClickFast = true;
+}
 //suriken
 const surikenArr = [];
 function SurikenInstance() {
@@ -60,15 +66,10 @@ function addNewSuriken() {
   const newSuriken = new SurikenInstance();
   surikenArr.push(newSuriken);
 }
-function defaultAction(indexDelete, ) {
-  delete eventArr[indexDelete];
-  ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-  ninja.stopListenKey = null;
-  ninja.howToRender = 'infinity';
-  ninja.gapFrame = 3;
-  ninja.amountFrames = 19;
-  ninja.frameX = 0;
-}
+
+// defind the index to delete for 'once' animation
+let deleteIndex = null;
+
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -85,22 +86,11 @@ function animate() {
     ninja.height
   );
 
-  controllEventArr();
+  actionNinja();
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
-      if(ninja.frameX < ninja.amountFrames) {
-        ninja.frameX++;
-      }
-      else {
-        console.log(ninja.stopListenKey);
-        delete eventArr[70];
-        ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-        ninja.howToRender = 'infinity';
-        ninja.gapFrame = 3;
-        ninja.amountFrames = 19;
-        ninja.frameX = 0;
-      };
+      shortPress(deleteIndex);
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
@@ -116,56 +106,62 @@ function animate() {
         ninja.frameX++;
       }
       else {
-        defaultAction(ninja.stopListenKey)
+        delete actionArr[ninja.stopListenKey];
+        ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+        ninja.stopListenKey = null;
+        ninja.howToRender = 'infinity';
+        ninja.gapFrame = 3;
+        ninja.amountFrames = 19;
+        ninja.frameX = 0;
       }
     }
   }
+    
     // suriken
-  if(surikenArr.length) {
-    surikenArr.forEach((sur, ind) => {
-      if(sur.isExist) {
-        sur.surikenLaunch();
-      } else {surikenArr.splice(ind, 1);}
-    });
-  }
+    if(surikenArr.length) {
+      surikenArr.forEach((sur, ind) => {
+        if(sur.isExist) {
+          sur.surikenLaunch();
+        } else {surikenArr.splice(ind, 1);}
+      });
+    }
   gameFrame++;
   requestAnimationFrame(animate);
 }
 
-//this function are watching for eventArr changes
-function controllEventArr() {
-  if(eventArr[68]) {
+
+function actionNinja() {
+  if(actionArr[68]) {
     ninja.frameY = 2;
     ninja.gapFrame = 2;
     ninja.amountFrames = 18;
     ninja.derection = 'left'
   }
-  if(eventArr[65]) {
+  if(actionArr[65]) {
     ninja.frameY = 3;
     ninja.gapFrame = 2;
     ninja.amountFrames = 18;
     ninja.derection = 'right'
   }//block
-  if(eventArr[3] && ninja.derection == 'left') {
+  if(actionArr[3] && ninja.derection == 'left') {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
     ninja.amountFrames = 19;
     
   }
-  if(eventArr[3] && ninja.derection == 'right') {
+  if(actionArr[3] && ninja.derection == 'right') {
     ninja.frameY = 5;
     ninja.gapFrame = 2;
     ninja.amountFrames = 19;
-    console.log(ninja.howToRender);
   }//fly weel
-  if(eventArr[32] && eventArr[68] || eventArr[32] && ninja.derection == 'left') {
+  if(actionArr[32] && actionArr[68] || actionArr[32] && ninja.derection == 'left') {
     ninja.frameY = 6;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
     ninja.y = 200;
     setTimeout(() => ninja.y = 370, 200)
   }
-  if(eventArr[32] && eventArr[65] || eventArr[32] && ninja.derection == 'right') {
+  if(actionArr[32] && actionArr[65] || actionArr[32] && ninja.derection == 'right') {
     ninja.frameY = 7;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
@@ -173,25 +169,25 @@ function controllEventArr() {
     setTimeout(() => ninja.y = 370, 200)
   }
   // suriken
-  if(eventArr[1]) {
-    ninja.stopListenKey = 1,
+  if(actionArr[1]) {
     ninja.frameY = ninja.derection == 'right' ? 11 : 10;
     ninja.amountFrames = 5;
+
   }
-  //sward
-  if(eventArr[70]) {
-    ninja.frameY = 8;
+  if(actionArr[70]) {
+    ninja.frameY = ninja.derection == 'right' ? 9 : 8;
+    ninja.amountFrames = 19;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 16;
   }
+ 
 };
 
 
 function keyHandler(e) {
   // console.log(e.which);
-  if(e.which == ninja.stopListenKey) return false;
-  if(!eventArr[e.which]) {
-    eventArr[e.which] = true;
+  if(e.which == ninja.stopListenKey) return;
+  if(!actionArr[e.which]) {
+    actionArr[e.which] = true;
     ninja.frameX = 0;
     if(e.which == 32 || e.which == 1 || e.which == 70) {
       ninja.stopListenKey = e.which;
@@ -210,46 +206,63 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
-  //simultaneous unpress keys
+  console.log(e.which);
+  console.log(ninja.stopListenKey);
   if(ninja.stopListenKey == 3) {
-    if( e.which == 68 || e.which == 65)
     ninja.howToRender = 'reverseAnimation';
-    delete  eventArr[e.which];
-    return false;
+    if( e.which == 68 || e.which == 65)
+    delete  actionArr[e.which];
+    return;
   }
-  if(ninja.stopListenKey == 32 || 70) {
+  if(ninja.stopListenKey == 32 || ninja.stopListenKey == 70) {
+    deleteIndex = ninja.stopListenKey;
     ninja.stopListenKey = null;
-    if(e.which == 68 || e.which == 65) delete eventArr[e.which];
+    if(e.which == 68 || e.which == 65) delete actionArr[e.which];
     return false;
   }
+  console.log(e.which);
+  if( actionArr[32]) {
+    delete actionArr[32];
+  }
+ 
+  delete actionArr[e.which];
+  ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+  ninja.gapFrame = 3;
+  ninja.howToRender = 'infinity';
+  ninja.frameX = 0;
+  ninja.amountFrames = 18;
+  ninja.stopListenKey = null;
 });
 
 window.addEventListener('mouseup', (e) => {
   
   if(ninja.stopListenKey == 3 ) {
     ninja.howToRender = 'reverseAnimation';
-    return false;
+    return;
   }
 
   if(ninja.stopListenKey == 1) {
     ninja.stopListenKey = null;
-    delete eventArr[1];
+    delete actionArr[1];
     return false;
   }
-  defaultAction(e.which);
+    delete actionArr[e.which];
+    ninja.frameY = 0
+    ninja.gapFrame = 3;
+    ninja.frameX = 0;
+    ninja.amountFrames = 19;
 });
 
-function onceRender(eCode) {
-  console.log(eCode);
+function shortPress(eCode) {
   if(ninja.frameX < ninja.amountFrames) {
     ninja.frameX++;
   }
   else {
-    delete eventArr[eCode];
+    delete actionArr[eCode];
     ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-    ninja.howToRender = 'infinity';
-    ninja.gapFrame = 3;
-    ninja.amountFrames = 19;
+    ninja.howToRender = 'infinity',
+    ninja.amountFrames = 19,
     ninja.frameX = 0;
+console.log(deleteIndex, '======', actionArr[eCode]);
   }
 }
