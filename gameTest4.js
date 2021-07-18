@@ -90,7 +90,8 @@ function animate() {
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
-      shortPress(deleteIndex);
+      const ind = deleteIndex ? deleteIndex : ninja.stopListenKey;
+      shortPress(ind);
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
@@ -176,7 +177,7 @@ function actionNinja() {
   }
   if(actionArr[70]) {
     ninja.frameY = ninja.derection == 'right' ? 9 : 8;
-    ninja.amountFrames = 19;
+    ninja.amountFrames = 16;
     ninja.gapFrame = 2;
   }
  
@@ -184,9 +185,10 @@ function actionNinja() {
 
 
 function keyHandler(e) {
-  // console.log(e.which);
-  if(e.which == ninja.stopListenKey) return;
+  console.log('down: ',e.which, 'actionArr: ', actionArr[e.which]);
+  if(e.which == ninja.stopListenKey || actionArr[e.which]) return;
   if(!actionArr[e.which]) {
+    console.log('aply: ', e.which);
     actionArr[e.which] = true;
     ninja.frameX = 0;
     if(e.which == 32 || e.which == 1 || e.which == 70) {
@@ -206,24 +208,22 @@ animate();
 window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
-  console.log(e.which);
-  console.log(ninja.stopListenKey);
+
+  console.log("up: ",deleteIndex);
+  console.log("stop: ",ninja.stopListenKey);
   if(ninja.stopListenKey == 3) {
     ninja.howToRender = 'reverseAnimation';
     if( e.which == 68 || e.which == 65)
     delete  actionArr[e.which];
     return;
   }
-  if(ninja.stopListenKey == 32 || ninja.stopListenKey == 70) {
+  if(ninja.stopListenKey == 32 || ninja.stopListenKey == 70 && ninja.howToRender == 'once') {
     deleteIndex = ninja.stopListenKey;
     ninja.stopListenKey = null;
     if(e.which == 68 || e.which == 65) delete actionArr[e.which];
     return false;
   }
-  console.log(e.which);
-  if( actionArr[32]) {
-    delete actionArr[32];
-  }
+  if(deleteIndex == 70) return false;
  
   delete actionArr[e.which];
   ninja.frameY = ninja.derection == 'left' ? 0 : 1;
@@ -260,9 +260,12 @@ function shortPress(eCode) {
   else {
     delete actionArr[eCode];
     ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-    ninja.howToRender = 'infinity',
     ninja.amountFrames = 19,
     ninja.frameX = 0;
-console.log(deleteIndex, '======', actionArr[eCode]);
+    ninja.gapFrame = 3;
+    console.log(deleteIndex, '======', actionArr[eCode]);
+    deleteIndex = null;
+    ninja.howToRender = 'infinity',
+    console.log('once end: ', deleteIndex);
   }
 }
