@@ -25,7 +25,7 @@ const ninja = {
 };
 let gameFrame = 0;
 
-const actionArr = [];
+const eventArr = [];
 let isClickFast = true;
 let timer_isFast = 0;
 function cleanUpTimer(id) {
@@ -69,6 +69,7 @@ function addNewSuriken() {
 
 // defind the index to delete for 'once' animation
 let deleteIndex = null;
+const impactArr = [];
 
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -86,12 +87,12 @@ function animate() {
     ninja.height
   );
 
-  actionNinja();
+  controlEventArr();
 
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
       const ind = deleteIndex ? deleteIndex : ninja.stopListenKey;
-      shortPress(ind);
+        onceAnimation(ind)
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
@@ -107,7 +108,7 @@ function animate() {
         ninja.frameX++;
       }
       else {
-        delete actionArr[ninja.stopListenKey];
+        delete eventArr[ninja.stopListenKey];
         ninja.frameY = ninja.derection == 'left' ? 0 : 1;
         ninja.stopListenKey = null;
         ninja.howToRender = 'infinity';
@@ -131,38 +132,38 @@ function animate() {
 }
 
 
-function actionNinja() {
-  if(actionArr[68]) {
+function controlEventArr() {
+  if(eventArr[68]) {
     ninja.frameY = 2;
     ninja.gapFrame = 2;
     ninja.amountFrames = 18;
     ninja.derection = 'left'
   }
-  if(actionArr[65]) {
+  if(eventArr[65]) {
     ninja.frameY = 3;
     ninja.gapFrame = 2;
     ninja.amountFrames = 18;
     ninja.derection = 'right'
   }//block
-  if(actionArr[3] && ninja.derection == 'left') {
+  if(eventArr[3] && ninja.derection == 'left') {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
     ninja.amountFrames = 19;
     
   }
-  if(actionArr[3] && ninja.derection == 'right') {
+  if(eventArr[3] && ninja.derection == 'right') {
     ninja.frameY = 5;
     ninja.gapFrame = 2;
     ninja.amountFrames = 19;
   }//fly weel
-  if(actionArr[32] && actionArr[68] || actionArr[32] && ninja.derection == 'left') {
+  if(eventArr[32] && eventArr[68] || eventArr[32] && ninja.derection == 'left') {
     ninja.frameY = 6;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
     ninja.y = 200;
     setTimeout(() => ninja.y = 370, 200)
   }
-  if(actionArr[32] && actionArr[65] || actionArr[32] && ninja.derection == 'right') {
+  if(eventArr[32] && eventArr[65] || eventArr[32] && ninja.derection == 'right') {
     ninja.frameY = 7;
     ninja.gapFrame = 2;
     ninja.amountFrames = 9;
@@ -170,26 +171,26 @@ function actionNinja() {
     setTimeout(() => ninja.y = 370, 200)
   }
   // suriken
-  if(actionArr[1]) {
+  if(eventArr[1]) {
     ninja.frameY = ninja.derection == 'right' ? 11 : 10;
-    ninja.amountFrames = 5;
+    ninja.gapFrame = 2;
+    ninja.amountFrames = 3;
 
   }
-  if(actionArr[70]) {
+  if(eventArr[70]) {
     ninja.frameY = ninja.derection == 'right' ? 9 : 8;
-    ninja.amountFrames = 16;
-    ninja.gapFrame = 2;
+    ninja.amountFrames = 19;//impactArr.length > 1 ? 13 : 19;
+    ninja.gapFrame = 1;
   }
  
 };
 
 
 function keyHandler(e) {
-  console.log('down: ',e.which, 'actionArr: ', actionArr[e.which]);
-  if(e.which == ninja.stopListenKey || actionArr[e.which]) return;
-  if(!actionArr[e.which]) {
-    console.log('aply: ', e.which);
-    actionArr[e.which] = true;
+  console.log('down: ',e.which, 'eventArr: ', eventArr[e.which]);
+  if(e.which == ninja.stopListenKey || eventArr[e.which]) return;
+  if(!eventArr[e.which]) {
+    eventArr[e.which] = true;
     ninja.frameX = 0;
     if(e.which == 32 || e.which == 1 || e.which == 70) {
       ninja.stopListenKey = e.which;
@@ -214,18 +215,23 @@ window.addEventListener('keyup', (e) => {
   if(ninja.stopListenKey == 3) {
     ninja.howToRender = 'reverseAnimation';
     if( e.which == 68 || e.which == 65)
-    delete  actionArr[e.which];
+    delete  eventArr[e.which];
     return;
   }
+  // console.log('stoplistenkey: ' ,ninja.stopListenKey);
+  console.log('32: ' ,ninja.stopListenKey);
+  console.log(e.which);
   if(ninja.stopListenKey == 32 || ninja.stopListenKey == 70 && ninja.howToRender == 'once') {
     deleteIndex = ninja.stopListenKey;
     ninja.stopListenKey = null;
-    if(e.which == 68 || e.which == 65) delete actionArr[e.which];
+    if(e.which == 68 || e.which == 65) delete eventArr[e.which];
     return false;
   }
-  if(deleteIndex == 70) return false;
+
+  // if(deleteIndex == 70) return false;
+  if(deleteIndex == 70) nin
  
-  delete actionArr[e.which];
+  delete eventArr[e.which];
   ninja.frameY = ninja.derection == 'left' ? 0 : 1;
   ninja.gapFrame = 3;
   ninja.howToRender = 'infinity';
@@ -243,27 +249,27 @@ window.addEventListener('mouseup', (e) => {
 
   if(ninja.stopListenKey == 1) {
     ninja.stopListenKey = null;
-    delete actionArr[1];
+    delete eventArr[1];
     return false;
   }
-    delete actionArr[e.which];
+    delete eventArr[e.which];
     ninja.frameY = 0
     ninja.gapFrame = 3;
     ninja.frameX = 0;
     ninja.amountFrames = 19;
 });
 
-function shortPress(eCode) {
+function onceAnimation(eCode) {
   if(ninja.frameX < ninja.amountFrames) {
     ninja.frameX++;
   }
   else {
-    delete actionArr[eCode];
+    delete eventArr[eCode];
     ninja.frameY = ninja.derection == 'left' ? 0 : 1;
     ninja.amountFrames = 19,
     ninja.frameX = 0;
     ninja.gapFrame = 3;
-    console.log(deleteIndex, '======', actionArr[eCode]);
+    console.log(deleteIndex, '======', eventArr[eCode]);
     deleteIndex = null;
     ninja.howToRender = 'infinity',
     console.log('once end: ', deleteIndex);
