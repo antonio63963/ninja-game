@@ -132,20 +132,19 @@ function controlEventArr() {
   if(eventArr[68]) {
     ninja.frameY = 2;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 18;
+    ninja.amountFrames = 19;
     ninja.derection = 'left'
   }
   if(eventArr[65]) {
     ninja.frameY = 3;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 18;
+    ninja.amountFrames = 19;
     ninja.derection = 'right'
   }//block
   if(eventArr[3] && ninja.derection == 'left') {
     ninja.frameY = 4;
     ninja.gapFrame = 2;
-    ninja.amountFrames = 19;
-    
+    ninja.amountFrames = 19;     
   }
   if(eventArr[3] && ninja.derection == 'right') {
     ninja.frameY = 5;
@@ -179,7 +178,14 @@ function controlEventArr() {
     ninja.amountFrames = 19;//impactArr.length > 1 ? 13 : 19;
     ninja.gapFrame = 1;
   }
- 
+  if(eventArr[87] ) {
+    ninja.frameY = ninja.derection == 'right' ? 13 : 12;
+    ninja.amountFrames = 19;
+    ninja.gapFrame = 1;
+    ninja.y = 200;
+    setTimeout(() => ninja.y = 370, 200)
+  }
+
 };
 
 
@@ -189,7 +195,7 @@ function keyHandler(e) {
   if(!eventArr[e.which]) {
     eventArr[e.which] = true;
     ninja.frameX = 0;
-    if(e.which == 32 || e.which == 1 || e.which == 70) {
+    if(e.which == 32 || e.which == 1 || e.which == 70 || e.which == 87) {
       ninja.stopListenKey = e.which;
       ninja.howToRender = 'once';
     }  
@@ -207,6 +213,8 @@ window.addEventListener("keydown", keyHandler);
 window.addEventListener("mousedown", keyHandler);
 window.addEventListener('keyup', (e) => {
 console.log(e.which);
+console.log('listen: ', ninja.stopListenKey);
+console.log('del: ', deleteIndex);
 
   if(ninja.stopListenKey == 3) {
     ninja.howToRender = 'reverseAnimation';
@@ -215,14 +223,17 @@ console.log(e.which);
     return;
   }
 
-  if(ninja.stopListenKey == 32 || ninja.stopListenKey == 70 && ninja.howToRender == 'once') {
+  if(ninja.stopListenKey == 32 || ninja.stopListenKey == 70 || ninja.stopListenKey == 87) {
     deleteIndex = ninja.stopListenKey;
     ninja.stopListenKey = null;
     if(e.which == 68 || e.which == 65) delete eventArr[e.which];
     return false;
   }
   // if(deleteIndex == 70) return false;
-  if(deleteIndex == 70) nin
+  if(deleteIndex == 70 || deleteIndex == 87) {
+    if(e.which == 68 || e.which == 65) delete eventArr[e.which];
+    return false
+  };
 
   defaultAnimation(e.which)
 });
@@ -231,7 +242,7 @@ window.addEventListener('mouseup', (e) => {
   
   if(ninja.stopListenKey == 3 ) {
     ninja.howToRender = 'reverseAnimation';
-    return;
+    return; 
   }
 
   if(ninja.stopListenKey == 1) {
@@ -240,6 +251,7 @@ window.addEventListener('mouseup', (e) => {
     return false;
   }
   defaultAnimation(e.which);
+  console.log('exit up: ', eventArr);
 });
 
 function onceAnimation(eCode) {
