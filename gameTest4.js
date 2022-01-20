@@ -6,10 +6,14 @@ const canvasHeight = (canvas.height = 720);
 const ninjaImg = new Image();
 ninjaImg.src = "./assets/ninja_spriteTest.png";
 const bgImg = new Image();
-bgImg.src = "./assets/bg-start.jpg";
+bgImg.src = "./assets/bg-start2.jpg";
 const surikenImg = new Image();
 surikenImg.src = "./assets/suriken.svg";
-
+const bg = {
+  x: 0,
+  y: 0,
+  
+}
 const ninja = {
   x: 200,
   y: 370,
@@ -69,8 +73,8 @@ const impactArr = [];
 
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-  ctx.drawImage(bgImg, 0, 0, canvasWidth, canvasHeight);
+  // ctx.drawImage(bgImg, 0, 0, canvasWidth, canvasHeight);
+  ctx.drawImage(bgImg, bg.x, bg.y, canvasWidth, canvasHeight);
   ctx.drawImage(
     ninjaImg,
     ninja.frameX * ninja.width,
@@ -88,11 +92,11 @@ function animate() {
   if(gameFrame % ninja.gapFrame == 0) {
     if(ninja.howToRender == 'once') {
       const ind = deleteIndex ? deleteIndex : ninja.stopListenKey;
-        onceAnimation(ind)
+      onceAnimation(ind)
     }
     if(ninja.howToRender == 'infinity') {
       if(ninja.frameX < ninja.amountFrames) ninja.frameX++;
-      else ninja.frameX = 0;
+      else ninja.frameX = 0; 
     }
     if(ninja.howToRender == 'stopAnimation') {
       let framesToRender = Math.floor(ninja.amountFrames / 2);
@@ -179,10 +183,11 @@ function controlEventArr() {
     ninja.gapFrame = 1;
   }
   if(eventArr[87] ) {
+    ninja.howToRender = 'once';
     ninja.frameY = ninja.derection == 'right' ? 13 : 12;
     ninja.amountFrames = 19;
     ninja.gapFrame = 1;
-    ninja.y = 200;
+    ninja.y = 280;
     setTimeout(() => ninja.y = 370, 200)
   }
 
@@ -203,6 +208,7 @@ function keyHandler(e) {
       ninja.stopListenKey = e.which
       ninja.howToRender = 'stopAnimation';
     }
+    if(e.which == 68 || e.which == 65) ninja.howToRender = 'infinity'
     if(e.which == 1) addNewSuriken();
   }
 }
@@ -264,9 +270,11 @@ function onceAnimation(eCode) {
   }
 }
 function defaultAnimation(eCode) {
-  delete eventArr[eCode];
-  ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-  ninja.amountFrames = 19;                                 
-  ninja.frameX = 0;
-  ninja.gapFrame = 3;
+  if(eCode) { //this validation allows to end "once" animation correct
+    delete eventArr[eCode];
+    ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+    ninja.amountFrames = 19;                                 
+    ninja.frameX = 0;
+    ninja.gapFrame = 3;
+  }
 }
