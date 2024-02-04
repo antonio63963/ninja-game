@@ -102,7 +102,9 @@ function Ninja() {
           this.howToRender = 'stopAnimation';
         }
         if (e.which == 68 || e.which == 65) this.howToRender = 'infinity';
-        if (e.which == 1) addNewSuriken();
+        if (e.which == 1) {
+          addNewSuriken();
+        };
       }
     },
 

@@ -5,7 +5,11 @@ const canvasHeight = (canvas.height = 720);
 
 const ninja = new Ninja();
 const enemies = [new Enemy_model()];
-const ninjaSurikens = new NinjaSurikens(enemies);
+const ninjaSurikens = new NinjaSurikens(enemies, (hittedEnemy) =>
+  enemyExplouds.push(new ExploudInstance(hittedEnemy))
+);
+
+const iT = setTimeout(() => enemies.push(new Enemy_model()), 2000);
 
 const exploudSeq = new Image();
 exploudSeq.src = './assets/explose.png';
@@ -14,10 +18,6 @@ const bgImg = new Image();
 bgImg.src = './assets/bg-start1.jpg';
 const bgImg2 = new Image();
 bgImg2.src = './assets/bg-start2.jpg';
-
-//ENEMY
-// const enemy_model = ;
-// enemies.push(enemy_model);
 
 let gameSpeed = 5;
 
@@ -34,32 +34,31 @@ const bg2 = {
 
 let gameFrame = 0;
 
-// const eventArr = [];
 let isClickFast = true;
 let timer_isFast = 0;
 
 //exploud
 const enemyExplouds = [];
-function ExploudInstance() {
+function ExploudInstance(enemy) {
   this.frameX = 0;
   this.frameY = 0;
   this.amountFrames = 14;
-  this.makeExploud = function (enemy_model) {
+  this.makeExploud = function () {
     console.log('EXPLOUDDD!!!!!');
     ctx.drawImage(
       exploudSeq,
-      exp.frameX * 200,
-      exp.frameY * 200,
+      this.frameX * 200,
+      this.frameY * 200,
       200,
       200,
-      enemy_model.x,
-      enemy_model.y,
+      enemy.x,
+      enemy.y,
       200,
       200
     );
+    this.frameX++;
   };
 }
-const exp = new ExploudInstance();
 
 function moveBG_forward() {
   bg.x -= gameSpeed;
@@ -85,39 +84,39 @@ function animate() {
   }
 
   // if(enemies.length) {
-    enemies.forEach((enemy, idx) => {
-      if(!enemy) return;
-      if (!enemy.isHit && enemy.life > 0) {
-        ctx.drawImage(
-          enemy1,
-          enemy.frameX * enemy.width,
-          0,
-          enemy.width,
-          enemy.height,
-          enemy.x,
-          enemy.y,
-          enemy.width,
-          enemy.height
-        );
-      } else if(enemy.life == 0) {
-        enemies.splice(idx, 1);
-      };
+  enemies.forEach((enemy, idx) => {
+    if (!enemy) return;
+    if (!enemy.isHit && enemy.life > 0) {
+      ctx.drawImage(
+        enemy1,
+        enemy.frameX * enemy.width,
+        0,
+        enemy.width,
+        enemy.height,
+        enemy.x,
+        enemy.y,
+        enemy.width,
+        enemy.height
+      );
+    } else if (enemy.life == 0) {
+      enemies.splice(idx, 1);
+    }
 
-      //stop enemy if get ninja
-      if (Math.abs(enemy.x - ninja.x) > 150) {
-        enemy.x -= 2;
-      }
-      if (enemy.isHit) {
-        enemy.x += 15;
-        enemy.isHit = false;
-      }
-      // on moving out of screen
-      if (enemy.x < -200) {
-        enemy.x = canvasWidth;
-      }
-      enemy.state();
-      // remove
-    })
+    //stop enemy if get ninja
+    if (Math.abs(enemy.x - ninja.x) > 150) {
+      enemy.x -= 2;
+    }
+    if (enemy.isHit) {
+      enemy.x += 15;
+      enemy.isHit = false;
+    }
+    // on moving out of screen
+    if (enemy.x < -200) {
+      enemy.x = canvasWidth;
+    }
+    enemy.state();
+    // remove
+  });
   // }
 
   ctx.drawImage(
@@ -131,6 +130,19 @@ function animate() {
     ninja.width,
     ninja.height
   );
+
+  if (enemyExplouds.length) {
+    enemyExplouds.forEach((exp, idx) => {
+      console.log(exp)
+      if (exp.frameX >= exp.amountFrames) {
+        console.log("Exp: ", exp.amount)
+        enemyExplouds.splice(idx, 1);
+        return;
+      } else {
+        exp.makeExploud();
+      }
+    });
+  }
 
   ninja.controlEventArr();
 
@@ -172,7 +184,11 @@ function animate() {
 
 animate();
 
-window.addEventListener('keydown', (e) => ninja.keyHandler(e, ninjaSurikens.addNewSuriken));
-window.addEventListener('mousedown', (e) => ninja.keyHandler(e, ninjaSurikens.addNewSuriken));
+window.addEventListener('keydown', (e) =>
+  ninja.keyHandler(e, ninjaSurikens.addNewSuriken)
+);
+window.addEventListener('mousedown', (e) =>
+  ninja.keyHandler(e, ninjaSurikens.addNewSuriken)
+);
 window.addEventListener('keyup', (e) => ninja.onKeyUp(e));
 window.addEventListener('mouseup', (e) => ninja.onMouseUp(e));
