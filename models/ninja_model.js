@@ -84,6 +84,11 @@ function Ninja() {
         this.gapFrame = 1;
         this.y = 280;
         this.jump();
+      } 
+      else {
+        //хз
+        // this.eventArr = [];w 
+        this.defaultAnimation();
       }
     },
 

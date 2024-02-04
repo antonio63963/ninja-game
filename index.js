@@ -83,7 +83,7 @@ function animate() {
     bg2.x = canvasWidth;
   }
 
-  // if(enemies.length) {
+  //Enemy
   enemies.forEach((enemy, idx) => {
     if (!enemy) return;
     if (!enemy.isHit && enemy.life > 0) {
@@ -98,6 +98,7 @@ function animate() {
         enemy.width,
         enemy.height
       );
+      enemy.createLifeIndicator();
     } else if (enemy.life == 0) {
       enemies.splice(idx, 1);
     }
@@ -117,7 +118,7 @@ function animate() {
     enemy.state();
     // remove
   });
-  // }
+
 
   ctx.drawImage(
     ninjaImg,
@@ -133,9 +134,9 @@ function animate() {
 
   if (enemyExplouds.length) {
     enemyExplouds.forEach((exp, idx) => {
-      console.log(exp)
+      console.log(exp);
       if (exp.frameX >= exp.amountFrames) {
-        console.log("Exp: ", exp.amount)
+        console.log('Exp: ', exp.amount);
         enemyExplouds.splice(idx, 1);
         return;
       } else {
