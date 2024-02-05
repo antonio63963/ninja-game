@@ -23,7 +23,6 @@ function Enemy_model() {
       }
     },
     createLifeIndicator: function() {
-      console.log(this)
       if(!this) return; 
       ctx.fillStyle = 'rgb(228,19,107)';
       //x, y, w, h

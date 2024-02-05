@@ -103,10 +103,16 @@ function animate() {
       enemies.splice(idx, 1);
     }
 
-    //stop enemy if get ninja
-    if (Math.abs(enemy.x - ninja.x) > 150) {
+    //stop enemy if get ninja and reaction on impact
+    const spaceBetweenNinja = Math.abs(enemy.x - ninja.x);
+    if (spaceBetweenNinja > 150) {
+      console.log(ninja.frameY);
       enemy.x -= 2;
     }
+      if (spaceBetweenNinja < 250 && spaceBetweenNinja > 150 && ninja.frameY == 12 && ninja.frameX > 3 && ninja.frameX < 12) {
+        enemy.x += 150;
+      } 
+    
     if (enemy.isHit) {
       enemy.x += 15;
       enemy.isHit = false;
@@ -116,9 +122,7 @@ function animate() {
       enemy.x = canvasWidth;
     }
     enemy.state();
-    // remove
   });
-
 
   ctx.drawImage(
     ninjaImg,
@@ -185,9 +189,10 @@ function animate() {
 
 animate();
 
-window.addEventListener('keydown', (e) =>
-  ninja.keyHandler(e, ninjaSurikens.addNewSuriken)
-);
+window.addEventListener('keydown', (e) => {
+  console.log(e?.key == 'g');
+  ninja.keyHandler(e, ninjaSurikens.addNewSuriken);
+});
 window.addEventListener('mousedown', (e) =>
   ninja.keyHandler(e, ninjaSurikens.addNewSuriken)
 );
