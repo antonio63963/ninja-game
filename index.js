@@ -60,14 +60,18 @@ function ExploudInstance(enemy) {
   };
 }
 
+let bgSpeed = null;
+
 function moveBG_forward() {
   bg.x -= gameSpeed;
   bg2.x -= gameSpeed;
+  bgSpeed = gameSpeed;
 }
 function moveBG_back() {
   if (bg.x == 0) return;
   bg.x += gameSpeed;
   bg2.x += gameSpeed;
+  bgSpeed = -gameSpeed;
 }
 
 function animate() {
@@ -103,11 +107,12 @@ function animate() {
       enemies.splice(idx, 1);
     }
 
-    //stop enemy if get ninja and reaction on impact
     const spaceBetweenNinja = Math.abs(enemy.x - ninja.x);
+    //stop enemy if get ninja and reaction on impact
+    console.log('isMoveBG: ', bgSpeed)
     if (spaceBetweenNinja > 150) {
-      console.log(ninja.frameY);
-      enemy.x -= 2;
+      let delta = bgSpeed ?  bgSpeed +2 : 2;
+      enemy.x -= delta;
     }
       if (spaceBetweenNinja < 250 && spaceBetweenNinja > 150 && ninja.frameY == 12 && ninja.frameX > 3 && ninja.frameX < 12) {
         enemy.x += 150;
@@ -122,6 +127,9 @@ function animate() {
       enemy.x = canvasWidth;
     }
     enemy.state();
+    if(idx == enemies.length -1) {
+      bgSpeed = null;
+    };
   });
 
   ctx.drawImage(
@@ -190,7 +198,7 @@ function animate() {
 animate();
 
 window.addEventListener('keydown', (e) => {
-  console.log(e?.key == 'g');
+  // console.log(e?.key == 'g');
   ninja.keyHandler(e, ninjaSurikens.addNewSuriken);
 });
 window.addEventListener('mousedown', (e) =>
