@@ -1,6 +1,3 @@
-const enemy1 = new Image();
-enemy1.src = './assets/enemy1_states.png';
-
 function Enemy_model() {
   return {
     x: canvasWidth,

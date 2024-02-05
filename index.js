@@ -5,13 +5,21 @@ const ctx = canvas.getContext('2d');
 const canvasWidth = (canvas.width = 1280);
 const canvasHeight = (canvas.height = 720);
 
+const ninjaImg = new Image();
+ninjaImg.src = './assets/ninja_spriteTest.png';
 const ninja = new Ninja();
+
+const enemy1 = new Image();
+enemy1.src = './assets/enemy1_states.png';
 const enemies = [new Enemy_model()];
 const ninjaSurikens = new NinjaSurikens(enemies, (hittedEnemy) =>
   enemyExplouds.push(new ExploudInstance(hittedEnemy))
 );
 
-const iT = setTimeout(() => enemies.push(new Enemy_model()), 2000);
+const idxT = setTimeout(() => {
+  enemies.push(new Enemy_model());
+  clearTimeout(idxT);
+}, 3000);
 
 const exploudSeq = new Image();
 exploudSeq.src = './assets/explose.png';
@@ -19,10 +27,15 @@ exploudSeq.src = './assets/explose.png';
 const bgImg = new Image();
 bgImg.src = './assets/bg_long.jpg';
 
+//splash screen
 const splashScreen = new Image();
 splashScreen.src = './assets/splash_screen.jpg';
+const getStartedButton = Components.Button(ctx, 'Get Started', 60, 450);
+//game over screen
+const gameOverScreen = new Image();
+gameOverScreen.src = './assets/game_over.jpg';
+const tryAgainButton = Components.Button(ctx, 'Try Again', canvasWidth/2 - 125, 550);
 
-let gameSpeed = 5;
 
 const surikenImg = new Image();
 surikenImg.src = './assets/suriken.svg';
@@ -31,10 +44,11 @@ const bg = {
   y: 0,
 };
 
+let gameSpeed = 5;
 let gameFrame = 0;
 
-let isClickFast = true;
-let timer_isFast = 0;
+// let isClickFast = true;
+// let timer_isFast = 0;
 
 //exploud
 const enemyExplouds = [];
@@ -93,6 +107,7 @@ function moveBG_back(customerMove) {
   bgSpeed = -gameSpeed;
 }
 
+// ANIMATE
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -125,12 +140,16 @@ function animate() {
 
       const spaceBetweenNinja = Math.abs(enemy.x - ninja.x);
       //stop enemy if get ninja and reaction on impact
-      if (spaceBetweenNinja < 150 && spaceBetweenNinja > 50) {
-        ninja.life -= .5;
+      console.log('ninja.Y :', ninja.y);
+      if (
+        spaceBetweenNinja < 150 &&
+        spaceBetweenNinja > 50 &&
+        ninja.frameY != 6 &&
+        ninja.x < enemy.x
+      ) {
+        ninja.life -= 0.5;
         ninja.isHit = !ninja.isHit;
-      };
-      // console.log("SPEED: ", bgSpeed)
-      // console.log('Delta: ', delta)
+      }
       let delta = bgSpeed ? 2 + bgSpeed : 2;
       enemy.x -= delta;
       // }
@@ -160,7 +179,8 @@ function animate() {
       }
     });
 
-    if(!ninja.isHit && ninja.life > 0) {
+    if (!ninja.isHit && ninja.life > 0) {
+      ninja.createLifeIndicator();
       ctx.drawImage(
         ninjaImg,
         ninja.frameX * ninja.width,
@@ -173,7 +193,10 @@ function animate() {
         ninja.height
       );
     }
-    if(ninja.isHit) {
+    if (ninja.life <= 0) {
+      isStartedGame = false;
+    }
+    if (ninja.isHit) {
       ninja.isHit = false;
     }
 
@@ -225,21 +248,61 @@ function animate() {
     ninjaSurikens.animateSurikens();
 
     gameFrame++;
-    requestAnimationFrame(animate);
   } else {
-    ctx.drawImage(splashScreen, bg.x, bg.y, canvasWidth, canvasHeight);
-    requestAnimationFrame(animate);
+    if (ninja.life <= 0) {
+      ctx.drawImage(gameOverScreen, 0, 0, canvasWidth, canvasHeight);
+      tryAgainButton.draw();
+    } else {
+      ctx.drawImage(splashScreen, 0, 0, canvasWidth, canvasHeight);
+      getStartedButton.draw();
+    }
   }
+  requestAnimationFrame(animate);
 }
 
 animate();
 
+// Splash Screen
 const onStartGame = (e) => {
-  isStartedGame = true;
+  if (getStartedButton.checkPosition(e.offsetX, e.offsetY)) {
+    isStartedGame = true;
+    canvas.removeEventListener('click', onStartGame);
+    canvas.removeEventListener('mousemove', onHoverStartGame);
+  }
+};
+
+const onHoverStartGame = (e) => {
+  console.log(getStartedButton.checkPosition(e.offsetX, e.offsetY));
+  getStartedButton.state = getStartedButton.checkPosition(e.offsetX, e.offsetY)
+    ? 'hover'
+    : 'default';
 };
 
 canvas.addEventListener('click', onStartGame);
+canvas.addEventListener('mousemove', onHoverStartGame);
 
+// GameOver Screen
+const onTryAgainButton = (e) => {
+  if (tryAgainButton.checkPosition(e.offsetX, e.offsetY)) {
+    isStartedGame = true;
+    ninja.life = 100;
+    gameFrame = 0;
+    canvas.removeEventListener('click', onTryAgainButton);
+    canvas.removeEventListener('mousemove', onHoverTryAgain);
+  }
+};
+
+const onHoverTryAgain = (e) => {
+  console.log(tryAgainButton.checkPosition(e.offsetX, e.offsetY));
+  tryAgainButton.state = tryAgainButton.checkPosition(e.offsetX, e.offsetY)
+    ? 'hover'
+    : 'default';
+};
+
+canvas.addEventListener('click', onTryAgainButton);
+canvas.addEventListener('mousemove', onHoverTryAgain);
+
+// Game
 window.addEventListener('keydown', (e) => {
   console.log(e?.keyCode);
   ninja.keyHandler(e, ninjaSurikens.addNewSuriken);

@@ -1,6 +1,3 @@
-const ninjaImg = new Image();
-ninjaImg.src = './assets/ninja_spriteTest.png';
-
 function Ninja() {
   return {
     x: 200,
@@ -48,22 +45,22 @@ function Ninja() {
         this.amountFrames = 19;
       } //fly weel
       if (
-        (this.eventArr[32] && this.eventArr[68]) ||
+        // (this.eventArr[32] && this.eventArr[68]) ||
         (this.eventArr[32] && this.derection == 'left')
       ) {
         this.howToRender = 'once';
         this.frameY = 6;
         this.gapFrame = 2;
         this.amountFrames = 9;
-        this.y = 200;
+        this.y = 150;
         this.jump();
-        moveBG_forward(3);
+        moveBG_forward(4);
       }
       // if(this.eventArr[32] && this.eventArr[68]) {
- 
+
       // }
       if (
-        (this.eventArr[32] && this.eventArr[65]) ||
+        // (this.eventArr[32] && this.eventArr[65]) ||
         (this.eventArr[32] && this.derection == 'right')
       ) {
         this.frameY = 7;
@@ -187,5 +184,18 @@ function Ninja() {
         this.gapFrame = 3;
       }
     },
+
+    createLifeIndicator: function() {
+      if(!this) return; 
+      ctx.fillStyle = 'rgb(228,19,107)';
+      //x, y, w, h
+      ctx.fillRect(this.x + 150, this.y, 100, 10);
+      ctx.fillStyle = 'rgb(29,113,98)';
+      ctx.fillRect(this.x + 150, this.y, this.life ?? 0, 10);
+
+      ctx.fillStyle = 'rgb(255,255,255)';
+      ctx.font = "24px sans-serif";
+      ctx.fillText(this.life, this.x + 150, this.y -15);
+    }
   };
 }
