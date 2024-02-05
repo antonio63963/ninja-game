@@ -9,6 +9,8 @@ function Ninja() {
     height: 300,
     frameX: 0,
     frameY: 0,
+    isHit: false,
+    life: 100,
     amountFrames: 19,
     gapFrame: 3,
     howToRender: 'infinity', //'infinity', 'once', 'stopAnimation', 'reverseAnimation'

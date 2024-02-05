@@ -65,31 +65,30 @@ function moveBG_forward(customerMove) {
   const delta = customerMove ? gameSpeed * customerMove : gameSpeed;
   const dataX = bg.x - delta;
 
-  console.log(ninja.x)
-  if ( dataX < -2560) {
+  console.log(ninja.x);
+  if (dataX < -2560) {
     bg.x = -2560;
     bgSpeed = null;
-    if(ninja.x < 900) {
+    if (ninja.x < 900) {
       ninja.x += delta;
     }
     return;
-  };
+  }
   bg.x = dataX;
   bgSpeed = delta;
 }
 function moveBG_back(customerMove) {
-  console.log(ninja.x)
   if (bg.x == 0) return;
   const delta = customerMove ? gameSpeed * customerMove : gameSpeed;
   const dataX = bg.x - delta;
-  if(ninja.x > 200) {
+  if (ninja.x > 200) {
     ninja.x -= gameSpeed;
   }
-  if ( dataX >= 0) {
+  if (dataX >= 0) {
     bg.x = 0;
     bgSpeed = null;
     return;
-  };
+  }
   bg.x += gameSpeed;
   bgSpeed = -gameSpeed;
 }
@@ -126,7 +125,10 @@ function animate() {
 
       const spaceBetweenNinja = Math.abs(enemy.x - ninja.x);
       //stop enemy if get ninja and reaction on impact
-      // if (spaceBetweenNinja > 150) {
+      if (spaceBetweenNinja < 150 && spaceBetweenNinja > 50) {
+        ninja.life -= .5;
+        ninja.isHit = !ninja.isHit;
+      };
       // console.log("SPEED: ", bgSpeed)
       // console.log('Delta: ', delta)
       let delta = bgSpeed ? 2 + bgSpeed : 2;
@@ -158,17 +160,22 @@ function animate() {
       }
     });
 
-    ctx.drawImage(
-      ninjaImg,
-      ninja.frameX * ninja.width,
-      ninja.frameY * ninja.height,
-      ninja.width,
-      ninja.height,
-      ninja.x,
-      ninja.y,
-      ninja.width,
-      ninja.height
-    );
+    if(!ninja.isHit && ninja.life > 0) {
+      ctx.drawImage(
+        ninjaImg,
+        ninja.frameX * ninja.width,
+        ninja.frameY * ninja.height,
+        ninja.width,
+        ninja.height,
+        ninja.x,
+        ninja.y,
+        ninja.width,
+        ninja.height
+      );
+    }
+    if(ninja.isHit) {
+      ninja.isHit = false;
+    }
 
     if (enemyExplouds.length) {
       enemyExplouds.forEach((exp, idx) => {
