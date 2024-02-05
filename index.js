@@ -1,3 +1,5 @@
+let isStartedGame = false;
+
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 const canvasWidth = (canvas.width = 1280);
@@ -15,9 +17,10 @@ const exploudSeq = new Image();
 exploudSeq.src = './assets/explose.png';
 
 const bgImg = new Image();
-bgImg.src = './assets/bg-start1.jpg';
-const bgImg2 = new Image();
-bgImg2.src = './assets/bg-start2.jpg';
+bgImg.src = './assets/bg_long.jpg';
+
+const splashScreen = new Image();
+splashScreen.src = './assets/splash_screen.jpg';
 
 let gameSpeed = 5;
 
@@ -25,10 +28,6 @@ const surikenImg = new Image();
 surikenImg.src = './assets/suriken.svg';
 const bg = {
   x: 0,
-  y: 0,
-};
-const bg2 = {
-  x: canvasWidth,
   y: 0,
 };
 
@@ -62,143 +61,172 @@ function ExploudInstance(enemy) {
 
 let bgSpeed = null;
 
-function moveBG_forward() {
-  bg.x -= gameSpeed;
-  bg2.x -= gameSpeed;
-  bgSpeed = gameSpeed;
+function moveBG_forward(customerMove) {
+  const delta = customerMove ? gameSpeed * customerMove : gameSpeed;
+  const dataX = bg.x - delta;
+
+  if ( dataX < -2560) {
+    bg.x = -2560;
+    bgSpeed = null;
+    return;
+  };
+  bg.x = dataX;
+  bgSpeed = delta;
 }
-function moveBG_back() {
+function moveBG_back(customerMove) {
   if (bg.x == 0) return;
+  const delta = customerMove ? gameSpeed * customerMove : gameSpeed;
+  const dataX = bg.x - delta;
+  if ( dataX >= 0) {
+    bg.x = 0;
+    bgSpeed = null;
+    return;
+  };
   bg.x += gameSpeed;
-  bg2.x += gameSpeed;
   bgSpeed = -gameSpeed;
 }
 
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-  ctx.drawImage(bgImg, bg.x, bg.y, canvasWidth, canvasHeight);
-  if (bg.x == -canvasWidth) {
-    console.log('GAP');
-    bg.x = canvasWidth;
-  }
-  ctx.drawImage(bgImg2, bg2.x, bg.y, canvasWidth, canvasHeight);
-  if (bg2.x == -canvasWidth) {
-    bg2.x = canvasWidth;
-  }
-
-  //Enemy
-  enemies.forEach((enemy, idx) => {
-    if (!enemy) return;
-    if (!enemy.isHit && enemy.life > 0) {
-      ctx.drawImage(
-        enemy1,
-        enemy.frameX * enemy.width,
-        0,
-        enemy.width,
-        enemy.height,
-        enemy.x,
-        enemy.y,
-        enemy.width,
-        enemy.height
-      );
-      enemy.createLifeIndicator();
-    } else if (enemy.life == 0) {
-      enemies.splice(idx, 1);
+  if (isStartedGame) {
+    ctx.drawImage(bgImg, bg.x, bg.y, canvasWidth * 3, canvasHeight);
+    if (bg.x < -canvasWidth * 3) {
+      console.log('GAP');
+      bg.x = canvasWidth;
     }
 
-    const spaceBetweenNinja = Math.abs(enemy.x - ninja.x);
-    //stop enemy if get ninja and reaction on impact
-    console.log('isMoveBG: ', bgSpeed)
-    if (spaceBetweenNinja > 150) {
-      let delta = bgSpeed ?  bgSpeed +2 : 2;
+    //Enemy
+    enemies.forEach((enemy, idx) => {
+      if (!enemy) return;
+      if (!enemy.isHit && enemy.life > 0) {
+        ctx.drawImage(
+          enemy1,
+          enemy.frameX * enemy.width,
+          0,
+          enemy.width,
+          enemy.height,
+          enemy.x,
+          enemy.y,
+          enemy.width,
+          enemy.height
+        );
+        enemy.createLifeIndicator();
+      } else if (enemy.life == 0) {
+        enemies.splice(idx, 1);
+      }
+
+      const spaceBetweenNinja = Math.abs(enemy.x - ninja.x);
+      //stop enemy if get ninja and reaction on impact
+      // if (spaceBetweenNinja > 150) {
+      // console.log("SPEED: ", bgSpeed)
+      // console.log('Delta: ', delta)
+      let delta = bgSpeed ? 2 + bgSpeed : 2;
       enemy.x -= delta;
-    }
-      if (spaceBetweenNinja < 250 && spaceBetweenNinja > 150 && ninja.frameY == 12 && ninja.frameX > 3 && ninja.frameX < 12) {
+      // }
+      if (
+        spaceBetweenNinja < 250 &&
+        spaceBetweenNinja > 150 &&
+        ninja.frameY == 12 &&
+        ninja.frameX > 3 &&
+        ninja.frameX < 12
+      ) {
         enemy.x += 150;
-      } 
-    
-    if (enemy.isHit) {
-      enemy.x += 15;
-      enemy.isHit = false;
-    }
-    // on moving out of screen
-    if (enemy.x < -200) {
-      enemy.x = canvasWidth;
-    }
-    enemy.state();
-    if(idx == enemies.length -1) {
-      bgSpeed = null;
-    };
-  });
+        enemy.life -= 20;
+      }
 
-  ctx.drawImage(
-    ninjaImg,
-    ninja.frameX * ninja.width,
-    ninja.frameY * ninja.height,
-    ninja.width,
-    ninja.height,
-    ninja.x,
-    ninja.y,
-    ninja.width,
-    ninja.height
-  );
-
-  if (enemyExplouds.length) {
-    enemyExplouds.forEach((exp, idx) => {
-      console.log(exp);
-      if (exp.frameX >= exp.amountFrames) {
-        console.log('Exp: ', exp.amount);
-        enemyExplouds.splice(idx, 1);
-        return;
-      } else {
-        exp.makeExploud();
+      if (enemy.isHit) {
+        enemy.x += 15;
+        enemy.isHit = false;
+      }
+      // on moving out of screen
+      if (enemy.x < -200) {
+        enemy.x = canvasWidth;
+        enemy.life = 100;
+      }
+      enemy.state();
+      if (idx == enemies.length - 1) {
+        bgSpeed = null;
       }
     });
-  }
 
-  ninja.controlEventArr();
+    ctx.drawImage(
+      ninjaImg,
+      ninja.frameX * ninja.width,
+      ninja.frameY * ninja.height,
+      ninja.width,
+      ninja.height,
+      ninja.x,
+      ninja.y,
+      ninja.width,
+      ninja.height
+    );
 
-  if (gameFrame % ninja.gapFrame == 0) {
-    if (ninja.howToRender == 'once') {
-      const ind = ninja.deleteIndex ? ninja.deleteIndex : ninja.stopListenKey;
-      ninja.onceAnimation(ind);
+    if (enemyExplouds.length) {
+      enemyExplouds.forEach((exp, idx) => {
+        console.log(exp);
+        if (exp.frameX >= exp.amountFrames) {
+          console.log('Exp: ', exp.amount);
+          enemyExplouds.splice(idx, 1);
+          return;
+        } else {
+          exp.makeExploud();
+        }
+      });
     }
-    if (ninja.howToRender == 'infinity') {
-      if (ninja.frameX < ninja.amountFrames) ninja.frameX++;
-      else ninja.frameX = 0;
-    }
-    if (ninja.howToRender == 'stopAnimation') {
-      let framesToRender = Math.floor(ninja.amountFrames / 2);
-      if (ninja.frameX < framesToRender) ninja.frameX++;
-      else ninja.frameX = framesToRender;
-    }
-    if (ninja.howToRender == 'reverseAnimation') {
-      if (ninja.frameX < ninja.amountFrames) {
-        ninja.frameX++;
-      } else {
-        delete ninja.eventArr[ninja.stopListenKey];
-        ninja.frameY = ninja.derection == 'left' ? 0 : 1;
-        ninja.stopListenKey = null;
-        ninja.howToRender = 'infinity';
-        ninja.gapFrame = 3;
-        ninja.amountFrames = 19;
-        ninja.frameX = 0;
+
+    ninja.controlEventArr();
+
+    if (gameFrame % ninja.gapFrame == 0) {
+      if (ninja.howToRender == 'once') {
+        const ind = ninja.deleteIndex ? ninja.deleteIndex : ninja.stopListenKey;
+        ninja.onceAnimation(ind);
+      }
+      if (ninja.howToRender == 'infinity') {
+        if (ninja.frameX < ninja.amountFrames) ninja.frameX++;
+        else ninja.frameX = 0;
+      }
+      if (ninja.howToRender == 'stopAnimation') {
+        let framesToRender = Math.floor(ninja.amountFrames / 2);
+        if (ninja.frameX < framesToRender) ninja.frameX++;
+        else ninja.frameX = framesToRender;
+      }
+      if (ninja.howToRender == 'reverseAnimation') {
+        if (ninja.frameX < ninja.amountFrames) {
+          ninja.frameX++;
+        } else {
+          delete ninja.eventArr[ninja.stopListenKey];
+          ninja.frameY = ninja.derection == 'left' ? 0 : 1;
+          ninja.stopListenKey = null;
+          ninja.howToRender = 'infinity';
+          ninja.gapFrame = 3;
+          ninja.amountFrames = 19;
+          ninja.frameX = 0;
+        }
       }
     }
+
+    // suriken
+    ninjaSurikens.animateSurikens();
+
+    gameFrame++;
+    requestAnimationFrame(animate);
+  } else {
+    ctx.drawImage(splashScreen, bg.x, bg.y, canvasWidth, canvasHeight);
+    requestAnimationFrame(animate);
   }
-
-  // suriken
-  ninjaSurikens.animateSurikens();
-
-  gameFrame++;
-  requestAnimationFrame(animate);
 }
 
 animate();
 
+const onStartGame = (e) => {
+  isStartedGame = true;
+};
+
+canvas.addEventListener('click', onStartGame);
+
 window.addEventListener('keydown', (e) => {
-  // console.log(e?.key == 'g');
+  console.log(e?.keyCode);
   ninja.keyHandler(e, ninjaSurikens.addNewSuriken);
 });
 window.addEventListener('mousedown', (e) =>

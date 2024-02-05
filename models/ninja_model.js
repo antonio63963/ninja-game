@@ -55,7 +55,11 @@ function Ninja() {
         this.amountFrames = 9;
         this.y = 200;
         this.jump();
+        moveBG_forward(3);
       }
+      // if(this.eventArr[32] && this.eventArr[68]) {
+ 
+      // }
       if (
         (this.eventArr[32] && this.eventArr[65]) ||
         (this.eventArr[32] && this.derection == 'right')
