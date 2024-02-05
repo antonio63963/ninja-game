@@ -65,18 +65,26 @@ function moveBG_forward(customerMove) {
   const delta = customerMove ? gameSpeed * customerMove : gameSpeed;
   const dataX = bg.x - delta;
 
+  console.log(ninja.x)
   if ( dataX < -2560) {
     bg.x = -2560;
     bgSpeed = null;
+    if(ninja.x < 900) {
+      ninja.x += delta;
+    }
     return;
   };
   bg.x = dataX;
   bgSpeed = delta;
 }
 function moveBG_back(customerMove) {
+  console.log(ninja.x)
   if (bg.x == 0) return;
   const delta = customerMove ? gameSpeed * customerMove : gameSpeed;
   const dataX = bg.x - delta;
+  if(ninja.x > 200) {
+    ninja.x -= gameSpeed;
+  }
   if ( dataX >= 0) {
     bg.x = 0;
     bgSpeed = null;
