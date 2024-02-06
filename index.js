@@ -14,11 +14,15 @@ let ninja = new Ninja();
 
 const enemy1 = new Image();
 enemy1.src = './assets/enemy1_states.png';
-let enemies = [new Enemy_model()];
-const idxT = setTimeout(() => {
+let enemies = [];
+createTestEnemies();
+function createTestEnemies() {
   enemies.push(new Enemy_model());
-  clearTimeout(idxT);
-}, 3000);
+  const idxT = setTimeout(() => {
+    enemies.push(new Enemy_model());
+    clearTimeout(idxT);
+  }, 3000);
+}
 
 const ninjaSurikens = new NinjaSurikens(enemies, (hittedEnemy) =>
   enemyExplouds.push(new ExploudInstance(hittedEnemy))
@@ -184,6 +188,8 @@ function animate() {
           bgSpeed = null;
         }
       });
+    } else {
+      createTestEnemies();
     }
 
     if (!ninja.isHit && ninja.life > 0) {
@@ -258,7 +264,6 @@ function animate() {
 
     gameFrame++;
   } else {
-    console.log('ISNEW GAME: ', isNewGame)
     if (isNewGame) {
       ctx.drawImage(gameOverScreen, 0, 0, canvasWidth, canvasHeight);
       tryAgainButton.draw();
@@ -297,8 +302,7 @@ const onTryAgainButton = (e) => {
     isNewGame = false;
     isGameStarted = true;
     AppStorage.setNoNewGame();
-    canvas.removeEventListener('click', onTryAgainButton);
-    canvas.removeEventListener('mousemove', onHoverTryAgain);
+    removeListenersGameOverScreen();
   }
 };
 
@@ -306,8 +310,7 @@ const onWithBeginButton = (e) => {
   if (withBeginButton.checkPosition(e.offsetX, e.offsetY)) {
     AppStorage.clear();
     location.reload();
-    canvas.removeEventListener('click', onTryAgainButton);
-    canvas.removeEventListener('mousemove', onHoverTryAgain);
+    removeListenersGameOverScreen();
   }
 };
 
@@ -327,11 +330,14 @@ canvas.addEventListener('mousemove', onHoverTryAgain);
 canvas.addEventListener('click', onWithBeginButton);
 canvas.addEventListener('mousemove', onHoverWithBegin);
 
-// Game
-// window.addEventListener('load', () => {
-//   isNewGame = AppStorage.getIsNewGame();
-// });
+function removeListenersGameOverScreen() {
+  canvas.removeEventListener('click', onTryAgainButton);
+  canvas.removeEventListener('mousemove', onHoverTryAgain);
+  canvas.removeEventListener('click', onWithBeginButton);
+  canvas.removeEventListener('mousemove', onHoverWithBegin);
+}
 
+// Game
 window.addEventListener('keydown', (e) => {
   console.log(e?.keyCode);
   ninja.keyHandler(e, ninjaSurikens.addNewSuriken);

@@ -13,7 +13,6 @@ class AppStorage {
 
   static getIsNewGame() {
     const storage = localStorage.getItem(this.storageName);
-    console.log('STOR:', storage);
     if (storage) {
       const data = JSON.parse(storage);
       return data.isNewGame;
